@@ -162,7 +162,10 @@ const getUserConversations = async (id: string) => {
     _id: { $in: userConversations?.conversationIds },
   })
 
-  return conversions;
+  return conversions.map(c => ({
+    ...c.toObject(),
+    avatar: 'https://picsum.photos/200'
+  }));
 }
 
 export { 

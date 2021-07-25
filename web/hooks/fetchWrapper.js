@@ -7,8 +7,17 @@ const fetchWrapper = (url, method, body = null) => {
       'Content-Type': 'application/json'
     },
     body: body ? body : null
-  }).then((res) => res.json())
+  }).then((res) => {
+    if(res.ok){
+      return res.json()
+    }
+    throw res;
+  })
     .catch((err) => {
+      if(err.status === 401){
+        window.location.href = '/login'
+        return
+      }
       throw err;
     })
 }

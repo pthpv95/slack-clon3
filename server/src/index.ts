@@ -8,7 +8,7 @@ import { User } from "./models/user"
 import auth from "./routes/auth"
 import messages from "./routes/message"
 import users from "./routes/user"
-import { app, server } from "./services/socket"
+import { server, app } from "./services/socket"
 declare global {
   namespace Express {
     interface User {

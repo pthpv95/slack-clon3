@@ -5,16 +5,33 @@ import MainContent from './components/main-content';
 import Search from './components/search';
 import Sidebar from './components/sidebar';
 import Thread from './components/thread';
+import { io } from "socket.io-client";
+import { SocketEvents, SocketActions } from '../../constants/events';
+import useUser from '../../hooks/auth/useUser';
+import useQueryUserConversations from '../../hooks/chat/useQueryUserConversations';
+
+const socket = io(process.env.NEXT_PUBLIC_BE_HOST, {
+  withCredentials: true
+});
 
 export default function Chat() {
+  const router = useRouter()
+
+  // use state
   const [thread, setThread] = useState(null)
   const [threadsData, setThreadsData] = useState([]);
   const [sidebarWidth, setSidebarWidth] = useState(0);
   const [selectedDirectMessage, setSelectedDirectMessage] = useState(null);
   const [initialSidebarWidth, setInitialSizeBarWidth] = useState(0)
-  const router = useRouter()
+  const [socketConnected, setSocketConnected] = useState(false)
+  // use queries
+  const { data: user } = useUser()
+  const { data: conversations } = useQueryUserConversations();
 
+  // use refs
+  const socketRef = useRef()
   const sidebarRef = useRef();
+
   const handleSubmitReply = (reply, thread) => {
     const cloneThreads = Object.assign([], threadsData);
     let existingThread = cloneThreads.find(t => t.id === thread.id)
@@ -37,17 +54,48 @@ export default function Chat() {
     setSidebarWidth(e.pageX);
   }
 
-  // useEffect(() => {
-  //   if(!(user || isLoading)){
-  //     // router.push('/login')
-  //   }
-  // }, [user, isLoading, router])
+  const handleSendMessage = (message) => {
+    socket.emit(SocketActions.send_message, {
+      message,
+      userId: user.id,
+      roomId: selectedDirectMessage._id
+    }, () => {
+      console.log('sent');
+    })
+  }
 
   useEffect(() => {
-    if(sidebarRef.current){
+    if (sidebarRef.current) {
       setInitialSizeBarWidth(sidebarRef.current.clientWidth);
     }
+
+    // TODO: Handle when window resizes
+    // window.addEventListener('resize', (e) => {
+    // setSidebarWidth('auto')
+    // });
+    socket.on('connect', () => {
+      console.log('connected to server');
+      setSocketConnected(true)
+    })
+
+    socket.on('disconnect', () => {
+      setSocketConnected(false)
+      console.log('disconnected to server');
+    })
+
+    socket.on(SocketEvents.new_message, (data) => {
+      console.log(data);
+    });
   }, [])
+
+
+  useEffect(() => {
+    if (conversations && socketConnected) {
+      conversations.forEach((room) => {
+        socket.emit(SocketActions.join_room, { roomId: room._id })
+      })
+    }
+  }, [conversations, socketConnected])
 
   return (
     <>
@@ -58,19 +106,21 @@ export default function Chat() {
         <div className="header">
           {selectedDirectMessage &&
             <div className="header__selected-contact">
-              <NextImage src={`/assets/${selectedDirectMessage.avatar}`}
-                alt={selectedDirectMessage.name}
+              <NextImage src={selectedDirectMessage.avatar}
+                alt={selectedDirectMessage.title}
                 width={30}
                 height={30}
               />
-              <p>{selectedDirectMessage.name}</p>
+              <p>{selectedDirectMessage.title}</p>
             </div>
           }
         </div>
         <div className="sidebar" style={{ width: sidebarWidth ? sidebarWidth : 'auto' }} ref={sidebarRef}>
-          <Sidebar onDirectMessageClick={(data) => {
-            setSelectedDirectMessage(data)
-          }} />
+          <Sidebar
+            conversations={conversations}
+            onDirectMessageClick={(data) => {
+              setSelectedDirectMessage(data)
+            }} />
         </div>
         <div draggable className="resize"
           onDrag={handleDrag}
@@ -82,19 +132,20 @@ export default function Chat() {
           }}>
         </div>
         <div className={`main-chat ${thread ? 'main-open-thread' : ''}`}>
-          <MainContent
-            onSendMessage={(value) => {
-              
-            }}
-            onOpenThread={(thread) => {
-              const existingThread = threadsData.find(t => t.id === thread.id)
-              if (!existingThread) {
-                setThread(thread);
-                setThreadsData([...threadsData, thread])
-              } else {
-                setThread(thread);
-              }
-            }} />
+          {selectedDirectMessage &&
+            <MainContent
+              onSendMessage={handleSendMessage}
+              onOpenThread={(thread) => {
+                const existingThread = threadsData.find(t => t.id === thread.id)
+                if (!existingThread) {
+                  setThread(thread);
+                  setThreadsData([...threadsData, thread])
+                } else {
+                  setThread(thread);
+                }
+              }}
+            />
+          }
         </div>
         {thread !== null && <Thread thread={thread} onCloseThread={() => setThread(null)} onSubmit={handleSubmitReply} />}
       </div>

@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import useQueryUserConversations from '../../../../hooks/chat/useQueryUserConversations';
+import React from 'react';
 import Channels from './channels';
 import DirectMessage from './direct-message';
 
-const SideBar = ({ onDirectMessageClick }) => {
-  const { data, isLoading } = useQueryUserConversations();
+const SideBar = ({ conversations, onDirectMessageClick }) => {
   return (
     <div className="sidebar-content">
       <Channels />
-      <DirectMessage conversations={data} onClick={(id) => {
-        onDirectMessageClick({
-          ...users.find(u => u.id === id)
-        })
-      }} />
+      <DirectMessage conversations={conversations} onClick={onDirectMessageClick} />
     </div>
   );
 };

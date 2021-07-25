@@ -11,16 +11,16 @@ export default function Layout() {
 
   useEffect(() => {
     setIsLoading(true)
-    fetchWrapper('/users/me', 'GET').then((user) => {
+    fetchWrapper('/users/me', "GET").then((user) => {
       setIsLoading(false)
-      queryClient.setQueryData('user_info', user);
       if (!user) {
         router.push('/login')
       } else {
-        router.push(router.asPath)
+        const redirectTo = router.asPath === '/' ? '/chat' : router.asPath;
+        router.push(redirectTo)
       }
     })
-  }, [router])
+  }, [])
 
   return (
     <div>
