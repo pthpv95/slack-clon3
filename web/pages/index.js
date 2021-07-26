@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
