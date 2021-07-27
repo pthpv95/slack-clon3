@@ -1,17 +1,9 @@
 import express from "express"
-var router = express.Router()
-import { Message } from "../models/message"
-import {
-  getConversationInfo,
-  createMessage,
-  getUserConversations
-} from "../services/message"
 import _ from "lodash"
-
-router.get("/conversations", async (req, res) => {
-  const messages = await getUserConversations(req.user!.id);
-  res.send(messages)
-})
+import {
+  createMessage, getConversationInfo
+} from "../services/message"
+var router = express.Router()
 
 router.post("/:conversationId/create", async (req, res) => {
   const body: any = _.pick(req.body, [

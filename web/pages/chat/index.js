@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import NextImage from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -24,6 +25,8 @@ export default function Chat() {
   const [selectedDirectMessage, setSelectedDirectMessage] = useState(null);
   const [initialSidebarWidth, setInitialSizeBarWidth] = useState(0)
   const [socketConnected, setSocketConnected] = useState(false)
+  const [newMessage, setNewMessage] = useState(null);
+
   // use queries
   const { data: user } = useUser()
   const { data: conversations } = useQueryUserConversations();
@@ -56,9 +59,9 @@ export default function Chat() {
 
   const handleSendMessage = (message) => {
     socket.emit(SocketActions.send_message, {
-      message,
+      text: message,
       userId: user.id,
-      roomId: selectedDirectMessage._id
+      conversationId: selectedDirectMessage._id
     }, () => {
       console.log('sent');
     })
@@ -84,7 +87,9 @@ export default function Chat() {
     })
 
     socket.on(SocketEvents.new_message, (data) => {
-      console.log(data);
+      if (data.conversationId) {
+        setNewMessage(data)
+      }
     });
   }, [])
 
@@ -99,6 +104,9 @@ export default function Chat() {
 
   return (
     <>
+      <Head>
+        {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
+      </Head>
       <div className={`container ${thread ? 'container-open-thread' : ''}`}>
         <div className="search">
           <Search />
@@ -122,7 +130,9 @@ export default function Chat() {
               setSelectedDirectMessage(data)
             }} />
         </div>
-        <div draggable className="resize"
+        <div
+          draggable
+          className="resize"
           onDrag={handleDrag}
           onDragEnd={(e) => { }}
           onDragStart={(e) => {
@@ -134,6 +144,7 @@ export default function Chat() {
         <div className={`main-chat ${thread ? 'main-open-thread' : ''}`}>
           {selectedDirectMessage &&
             <MainContent
+              newMessage={newMessage}
               onSendMessage={handleSendMessage}
               onOpenThread={(thread) => {
                 const existingThread = threadsData.find(t => t.id === thread.id)

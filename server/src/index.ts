@@ -8,6 +8,7 @@ import { User } from "./models/user"
 import auth from "./routes/auth"
 import messages from "./routes/message"
 import users from "./routes/user"
+import conversations from "./routes/conversation"
 import { server, app } from "./services/socket"
 declare global {
   namespace Express {
@@ -27,6 +28,7 @@ app.use(passport.initialize())
 app.use("/api/auth", auth)
 app.use("/api/messages", passport.authenticate("jwt", { session: false, authInfo: true }), messages)
 app.use("/api/users", passport.authenticate("jwt", { session: false, authInfo: true }), users)
+app.use("/api/conversations", passport.authenticate("jwt", { session: false, authInfo: true }), conversations)
 const port = process.env.PORT || 3001
 app.get("/", async (req: express.Request, res: express.Response) => {
   var users = await User.findOne()

@@ -51,10 +51,12 @@ class MessageDTO {
 }
 
 export interface CreateMessageInput {
+  id: string
   text: string
   attachmentUrl: string
   type: number
   createdBy: string
+  timestamp: Date
   conversationId: string
 }
 
@@ -153,25 +155,10 @@ var createConversation = async (
   return conversation
 }
 
-const getUserConversations = async (id: string) => {
-  const userConversations = await UserConversation.findOne({
-    userId: id
-  })
-
-  const conversions = await Conversation.find({
-    _id: { $in: userConversations?.conversationIds },
-  })
-
-  return conversions.map(c => ({
-    ...c.toObject(),
-    avatar: 'https://picsum.photos/200'
-  }));
-}
 
 export { 
   getConversationInfo,
   createMessage, 
   createConversation, 
-  readMessage, 
-  getUserConversations 
+  readMessage,
 }

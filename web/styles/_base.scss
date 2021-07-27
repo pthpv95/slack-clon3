@@ -1,5 +1,8 @@
 $color-primary: #1a1d21;
 $color-secondary: rgb(53 55 59);
+$color-hover-contact: #27242C;
+$color-selected-contact: #3A2D3B;
+
 $font-primary: 'Nunito', sans-serif;
 $bp-largest: 75em; // 1200px/16px
 $color-text-primary: rgb(195,195,194);
@@ -22,6 +25,7 @@ html {
 }
 
 body {
+  
 }
 
 .container {

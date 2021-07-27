@@ -85,4 +85,8 @@ const getUserContacts = async (userId: string) => {
   return contactsInfo
 }
 
-export { getUser, getUserContacts, getUserByIdentityId }
+const searchContacts = (userId: string) => {
+
+}
+
+export { getUser, getUserContacts, getUserByIdentityId, searchContacts }

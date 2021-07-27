@@ -6,22 +6,27 @@ import useUser from '../../../../hooks/auth/useUser';
 const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
   const { isLoading, data, isError } = useUser();
   const router = useRouter()
-  if(isError) {
+  if (isError) {
     router.push('/login')
   }
-  if(isLoading) {
+  if (isLoading) {
     return 'Loading...'
   }
 
-  if(!data){
+  if (!data) {
     return null
   }
 
   return (
-    <div className="search__user-info">
-      <Image src={`/assets/avatar1.jpeg`} alt={data.firstName} width={30} height={30} />
-      <p>{data.firstName + ' ' + data.lastName}</p>
-    </div>
+    <>
+      <div className="search__box">
+        <input className="search__box--input" placeholder="Search anything ... "/>
+      </div>
+      <div className="search__user-info">
+        <Image src={`/assets/avatar1.jpeg`} alt={data.firstName} width={30} height={30} />
+        {/* <p>{data.firstName + ' ' + data.lastName}</p> */}
+      </div>
+    </>
   );
 };
 

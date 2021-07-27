@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Input from '../shared/input';
 import Messages from '../shared/messages';
 
-const MainContent = ({ onOpenThread, onSendMessage }) => {
+const MainContent = ({ newMessage, onOpenThread, onSendMessage }) => {
   const [textMessage, setTextMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    if(newMessage){
+      const newList = [...messages, newMessage]
+      if(messages.some(n => n.id === newMessage.id)){
+        return
+      }
+      setMessages(newList);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newMessage])
 
   const handleMoreAction = (action) => {
     if (action.type === 'reply') {
@@ -38,17 +48,6 @@ const MainContent = ({ onOpenThread, onSendMessage }) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const newList = [
-            ...messages,
-            {
-              id: new Date().getTime(),
-              text: textMessage,
-              timestamp: new Date(),
-              createdBy: 'LeeP',
-              reactions: [],
-            },
-          ];
-          setMessages(newList);
           setTextMessage('');
           onSendMessage(textMessage);
         }}
@@ -58,6 +57,7 @@ const MainContent = ({ onOpenThread, onSendMessage }) => {
             id="input-chat"
             value={textMessage}
             autoComplete="off"
+            autoFocus={true}
             onChange={(e) => {
               setTextMessage(e.target.value);
             }}

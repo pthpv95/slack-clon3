@@ -3,7 +3,7 @@
   grid-row: 2/-1;
 }
 
-.sidebar-content{
+.sidebar-content {
   display: grid;
   height: 100%;
   overflow: auto;
@@ -12,53 +12,75 @@
   &::-webkit-scrollbar {
     display: none;
   }
-  &__direct-message{
+  &__direct-message {
     display: flex;
     flex-direction: column;
-    &--title{
+    &--title {
       color: $color-text-primary;
       font-size: 1.6rem;
       margin-left: 2rem;
       margin-bottom: 2rem;
     }
-    &--user{
+    &--add-teammate {
+      color: $color-text-primary;
+      padding-left: 1.5rem;
+      font-size: 1.4rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      p {
+        margin-left: 1rem;
+      }
+      &:hover {
+        background-color: $color-hover-contact;
+        cursor: pointer;
+      }
+    }
+    &--remove {
+      margin-right: 1rem;
+    }
+    &--user {
       display: flex;
       align-items: center;
       padding-left: 2rem;
-      margin-bottom: .5rem;
       height: 3.5rem;
       img {
         width: 2rem;
         height: 2rem;
         border-radius: 30%;
       }
-      p{
+      p {
         margin-left: 1rem;
         font-size: 1.4rem;
         color: $color-text-primary;
         align-self: center;
+        margin-right: auto;
       }
-      &:hover{
-        background-color: $color-secondary;
+      &:hover {
+        background-color: $color-hover-contact;
         cursor: pointer;
+      }
+
+      .remove-teammates {
+        margin-right: 1rem;
       }
     }
   }
 
-  &__channel{
+  &__channel {
     display: flex;
     flex-direction: column;
 
-    &--title{
+    &--title {
       color: $color-text-primary;
       font-size: 1.6rem;
       padding: 2rem;
     }
-    &--item{
+    &--item {
       display: flex;
       padding-left: 1rem;
       padding-bottom: 1.5rem;
-      p{
+      p {
         margin-left: 1rem;
         font-size: 1.4rem;
         color: $color-text-primary;

@@ -17,9 +17,8 @@ router.get("/:userId", async (req, res) => {
   res.send(user)
 })
 
-router.get("/:userId/contacts", async (req, res) => {
-  const userId = req.params.userId
-  var contacts = (await getUserContacts(userId)) || []
+router.get("/contacts", async (req, res) => {
+  var contacts = (await getUserContacts(req.user!.id)) || []
   res.send(contacts)
 })
 

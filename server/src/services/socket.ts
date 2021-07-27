@@ -6,6 +6,7 @@ import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
+import { generateUniqueId } from "../helpers";
 
 const app = require("express")();
 const server = createServer(app);
@@ -25,15 +26,17 @@ io.on("connection", (socket: Socket) => {
   socket.emit(SocketEvents.new_message, 'welcome ...');
 
   socket.on(SocketActions.on_send_message, async (data, cb) => {
-    io.to(data.roomId).emit(SocketEvents.new_message, data)
     const userId = data.userId;
-    // const input: CreateMessageInput = {
-    //   text: data.text,
-    //   attachmentUrl: data.attachmentUrl,
-    //   type: data.text ? 0 : 1,
-    //   createdBy: userId, // TODO: get from claim later
-    //   conversationId: data.conversationId,
-    // }
+    const input: CreateMessageInput = {
+      id: generateUniqueId(),
+      text: data.text,
+      attachmentUrl: data.attachmentUrl,
+      type: data.text ? 0 : 1,
+      createdBy: userId, // TODO: get from claim later
+      conversationId: data.conversationId,
+      timestamp: new Date(),
+    }
+    io.to(input.conversationId).emit(SocketEvents.new_message, input)
 
     // const message = await createMessage(input)
     // const response = {

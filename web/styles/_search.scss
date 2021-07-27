@@ -1,20 +1,37 @@
 .search {
   grid-column: 1/-1;
   grid-row: 1/1;
-  display: flex;
-  justify-content: flex-end;
-  background-color: #4A154B;
+  display: grid;
+  grid-template-columns: 97% 3%;
+  background-color: #4a154b;
+  &__box {
+    width: 70rem;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    input {
+      height: 2.5rem;
+      border-radius: 5px;
+      border: 0.5px solid #A388A1;
+      width: inherit;
+      outline: none;
+      background-color:#5C2C5C;
+      color: $color-text-primary;
+      margin-right: auto;
+      padding: 1rem;
+      &::placeholder{
+        color: inherit;
+      }
+    }
+  }
   &__user-info {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     margin-right: 1rem;
-    img{
-      border-radius: 30%;
-    }
-    p{
-      margin-left: 1rem;
-      font-size: 1.5rem;
-      font-weight: 400;
+    img {
+      cursor: pointer;
+      border-radius: 20%;
     }
   }
 }
