@@ -69,6 +69,17 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
               })}
           </div>
         )}
+        {message.replies > 0 && (
+          <div className="message__content--number-replies">
+            <p
+              onClick={(e) => {
+                handleMoreAction({ type: 'reply', id: message.id })
+              }}
+            >
+              {message.replies} {message.replies > 1 ? 'replies' : 'reply'}
+            </p>
+          </div>
+        )}
       </div>
       {isHover && !isInThread && (
         <MoreAction message={message} handleMoreAction={handleMoreAction} />
