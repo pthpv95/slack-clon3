@@ -1,7 +1,9 @@
 import express from "express"
 import _ from "lodash"
 import {
-  createMessage, getConversationInfo
+  createMessage, 
+  getDirectMessage,
+  getReplies
 } from "../services/message"
 var router = express.Router()
 
@@ -18,19 +20,30 @@ router.post("/:conversationId/create", async (req, res) => {
   res.send(message)
 })
 
-router.post("/", async (req, res) => {
+router.post("/direct", async (req, res) => {
   try {
     const cursor: any = req.body.cursor
     const limit = req.body.limit
-    const contactId = req.body.contactId
+    // const contactId = req.body.contactId
     const conversationId = req.body.conversationId
 
-    const data = await getConversationInfo(
-      contactId,
+    const data = await getDirectMessage(
+      req.user!.id,
       conversationId,
       cursor,
       limit
     )
+    res.send(data)
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error)
+  }
+})
+
+router.get("/thread/:threadId", async (req, res) => {
+  try {
+    const threadId = req.params.threadId
+    const data = await getReplies(threadId)
     res.send(data)
   } catch (error) {
     console.log(error);

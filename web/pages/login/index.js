@@ -6,7 +6,6 @@ const Login = () => {
   const [username, setUsername] = useState('hp@gmail.com')
   const [password, setPassword] = useState('123456')
   const { isLoading, mutate } = useLogin(username, password)
-  console.log(isLoading);
   return (
     <div>
       <form onSubmit={async (e) => {

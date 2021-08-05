@@ -5,7 +5,10 @@ const useUser = () => {
   const fetchUser = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return fetchWrapper('/users/me', 'GET').then((user) => {
-      return user;
+      return {
+        ...user,
+        displayName: user.firstName + ' ' + user.lastName
+      };
     }).catch((e) => {
       throw e;
     })

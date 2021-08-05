@@ -19,19 +19,29 @@
   }
 
   &__content {
+    // position: relative;
     .message-list {
       overflow-y: auto;
+      // display: flex;
+      // max-height: 70rem;
+      // -webkit-flex-flow: column; /* doesn't work without prefix */
       height: 80vh;
+      // flex-flow: column;
+      // flex-direction: column;
+      // justify-content: flex-end;
+
       &::-webkit-scrollbar {
-        display: none;
+        // display: none;
       }
       .message {
         display: flex;
         margin-top: 1.7rem;
-        margin-bottom: 1.7rem;
+        &:not(:last-child){
+          margin-bottom: 1.7rem;
+        }
         padding-left: 1.7rem;
         padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
+        // padding-bottom: 0.5rem;
         position: relative;
         img {
           border-radius: 30%;

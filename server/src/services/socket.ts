@@ -1,62 +1,69 @@
-import { SocketEvents, SocketActions } from "../constants"
-import { createMessage, CreateMessageInput } from "../services/message"
-import { IReadMessage } from "../types/message/IReadMessage"
-import { readMessage } from "../services/message"
-import { createServer } from "http";
-import { Server, Socket } from "socket.io";
-import { createAdapter } from '@socket.io/redis-adapter';
-import { createClient } from 'redis';
-import { generateUniqueId } from "../helpers";
+import { createAdapter } from '@socket.io/redis-adapter'
+import { createServer } from 'http'
+import { createClient } from 'redis'
+import { Server, Socket } from 'socket.io'
+import { SocketActions, SocketEvents } from '../constants'
+import {
+  createMessage,
+  CreateMessageInput,
+  CreateMessageInThreadInput,
+  readMessage,
+} from '../services/message'
+import { IReadMessage } from '../types/message/IReadMessage'
 
-const app = require("express")();
-const server = createServer(app);
+const app = require('express')()
+const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+})
 
-const pubClient = createClient({ host: "localhost", port: 6379, auth_pass: '123456' });
-const subClient = pubClient.duplicate();
-io.adapter(createAdapter(pubClient, subClient));
+const pubClient = createClient({
+  host: 'localhost',
+  port: 6379,
+  auth_pass: '123456',
+})
+const subClient = pubClient.duplicate()
+io.adapter(createAdapter(pubClient, subClient))
 
-io.on("connection", (socket: Socket) => {
-  socket.emit(SocketEvents.new_message, 'welcome ...');
-
+io.on('connection', (socket: Socket) => {
+  // socket.emit(SocketEvents.new_message, 'welcome ...');
   socket.on(SocketActions.on_send_message, async (data, cb) => {
-    const userId = data.userId;
+    const userId = data.userId
     const input: CreateMessageInput = {
-      id: generateUniqueId(),
       text: data.text,
       attachmentUrl: data.attachmentUrl,
       type: data.text ? 0 : 1,
       createdBy: userId, // TODO: get from claim later
       conversationId: data.conversationId,
-      timestamp: new Date(),
     }
-    io.to(input.conversationId).emit(SocketEvents.new_message, input)
+    const message = await createMessage(input)
+    io.emit(SocketEvents.new_message, message.toObject())
+    cb && cb()
+  })
 
-    // const message = await createMessage(input)
-    // const response = {
-    //   id: message._id,
-    //   text: data.text,
-    //   attachmentUrl: data.attachmentUrl,
-    //   messageType: message.type,
-    //   senderId: userId,
-    //   seen: true,
-    //   sentBy: userId,
-    //   conversationId: data.conversationId,
-    //   sentAt: message.createdAt
-    // }
-    // io.emit(SocketEvents.new_message, data)
-    cb()
+  socket.on(SocketActions.on_send_message_in_thread, async (data, cb) => {
+    const userId = data.userId
+    const input: CreateMessageInThreadInput = {
+      text: data.text,
+      attachmentUrl: data.attachmentUrl,
+      type: data.text ? 0 : 1,
+      createdBy: userId, // TODO: get from claim later
+      conversationId: data.conversationId,
+      threadId: data.threadId,
+    }
+    console.log(input)
+    const message = await createMessage(input)
+    io.emit(SocketEvents.new_message, message.toObject())
+    cb && cb()
   })
 
   socket.on(SocketEvents.on_join_room, (data) => {
-    console.log('on join room.', data);
-    socket.join(data.roomId);
+    console.log('on join room.', data)
+    socket.join(data.roomId)
   })
 
   socket.on(SocketEvents.read_message, async (data: IReadMessage) => {
@@ -72,8 +79,8 @@ io.on("connection", (socket: Socket) => {
     socket.emit(SocketEvents.stop_typing, data)
   })
 
-  socket.on("disconnect", () => {
-    console.log("User was disconnected!")
+  socket.on('disconnect', () => {
+    console.log('User was disconnected!')
   })
 })
 

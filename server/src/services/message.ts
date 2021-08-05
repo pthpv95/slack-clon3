@@ -1,22 +1,31 @@
 import _ from 'lodash'
-import { Conversation } from "../models/conversation"
-import { IMessage, Message } from "../models/message"
-import { ReadReceipt } from "../models/readReceipt"
-import { UserConversation } from '../models/userConversation'
-import { IReadMessage } from "../types/message/IReadMessage"
+import { Conversation } from '../models/conversation'
+import { IMessage, Message } from '../models/message'
+import { ReadReceipt } from '../models/readReceipt'
+import { User } from '../models/user'
+import { IReadMessage } from '../types/message/IReadMessage'
+import { UserInfo } from './user'
 
 class ConversationDTO {
-  constructor(id: string, title: string, messages: MessageDTO[] = [], nextCursor: string) {
+  constructor(
+    id: string,
+    title: string,
+    messages: MessageDTO[] = [],
+    nextCursor: string,
+    members: UserInfo[]
+  ) {
     this.id = id
     this.title = title
     this.messages = messages
     this.nextCursor = nextCursor
+    this.members = members
   }
 
   id: string
   title: string
-  nextCursor: string;
+  nextCursor: string
   messages: MessageDTO[]
+  members: UserInfo[]
 }
 
 class MessageDTO {
@@ -26,42 +35,41 @@ class MessageDTO {
     attachmentUrl: string,
     messageType: number,
     createdBy: string,
-    sentAt: Date,
-    isResponse: boolean,
-    seen: boolean
+    timestamp: Date,
+    replies?: number
   ) {
     this.id = id
     this.text = text
     this.attachmentUrl = attachmentUrl
     this.messageType = messageType
     this.createdBy = createdBy
-    this.sentAt = sentAt
-    this.isResponse = isResponse
-    this.seen = seen
+    this.timestamp = timestamp
+    this.replies = replies
   }
 
   id: string
-  text: IMessage["text"]
-  attachmentUrl: IMessage["attachmentUrl"]
-  messageType: IMessage["type"]
-  createdBy: IMessage["createdBy"]
-  sentAt: IMessage["createdAt"]
-  isResponse: boolean
-  seen: boolean
+  text: IMessage['text']
+  attachmentUrl: IMessage['attachmentUrl']
+  messageType: IMessage['type']
+  replies?: IMessage['replies']
+  createdBy: IMessage['createdBy']
+  timestamp: IMessage['createdAt']
 }
 
 export interface CreateMessageInput {
-  id: string
   text: string
   attachmentUrl: string
   type: number
   createdBy: string
-  timestamp: Date
   conversationId: string
 }
 
-const getConversationInfo = async (
-  contactId: string,
+export interface CreateMessageInThreadInput extends CreateMessageInput {
+  threadId: string
+}
+
+const getDirectMessage = async (
+  userId: string,
   conversationId: string,
   cursor?: number,
   limit: number = 3
@@ -70,6 +78,7 @@ const getConversationInfo = async (
   if (conversation) {
     let predicate: any = {
       conversationId,
+      threadId: null,
     }
     if (cursor) {
       predicate = {
@@ -78,53 +87,92 @@ const getConversationInfo = async (
       }
     }
 
-    var messages = await Message.find({ ...predicate })
+    const queryMembers = await User.find({
+      _id: { $in: conversation.memberIds },
+    })
+
+    const members: UserInfo[] = queryMembers.map((item) => {
+      return new UserInfo(
+        item.id,
+        item.firstName,
+        item.lastName,
+        item.email,
+        item.avatarUrl
+      )
+    })
+
+    const messages = await Message.find({ ...predicate })
       .sort({ _id: -1 })
       .limit(limit)
 
     let nextCursor: any = null
     if (messages) {
-      if (messages.length >= limit) {
+      if (messages.length === limit) {
         nextCursor = _.last(messages)?.id
       }
 
-      var lastReadMessage = await ReadReceipt.findOne({conversationId})
-
-      const messagesDTO = _.map(messages, (message) => {
-        const seen = message.id == lastReadMessage?.messageId
-
-        return new MessageDTO(
-          message.id,
-          message.text,
-          message.attachmentUrl,
-          message.type,
-          message.createdBy,
-          message.createdAt,
-          message.createdBy === contactId,
-          seen
-        )
-      })
+      const messagesDTO = await Promise.all(
+        _.map(messages, async (message) => {
+          const replies = await Message.countDocuments({
+            threadId: message.id,
+            conversationId,
+          })
+          return new MessageDTO(
+            message.id,
+            message.text,
+            message.attachmentUrl,
+            message.type,
+            message.createdBy,
+            message.createdAt,
+            replies
+          )
+        })
+      )
       return new ConversationDTO(
         conversation.id,
         conversation.title,
-        _.orderBy(messagesDTO, m => m.sentAt),
-        nextCursor
+        _.orderBy(messagesDTO, (m) => m.timestamp),
+        nextCursor,
+        members
       )
     }
 
-    return new ConversationDTO(conversation.id, conversation.title, [], nextCursor)
+    return new ConversationDTO(
+      conversation.id,
+      conversation.title,
+      [],
+      nextCursor,
+      members
+    )
   }
 
-  throw new Error("Conversation not found")
+  throw new Error('Conversation not found')
+}
+
+const getReplies = async (threadId: string) => {
+  const messages = await Message.find({ threadId })
+  return _.map(messages, (message) => {
+    return new MessageDTO(
+      message.id,
+      message.text,
+      message.attachmentUrl,
+      message.type,
+      message.createdBy,
+      message.createdAt
+    )
+  })
 }
 
 const readMessage = async (input: IReadMessage) => {
-  await ReadReceipt.findOneAndDelete({
-    conversationId: input.conversationId,
-  }, (err, doc) => {
-    console.log(err, doc);
-  })
-  
+  await ReadReceipt.findOneAndDelete(
+    {
+      conversationId: input.conversationId,
+    },
+    (err, doc) => {
+      console.log(err, doc)
+    }
+  )
+
   const readReceipt = new ReadReceipt({
     conversationId: input.conversationId,
     messageId: input.messageId,
@@ -135,7 +183,7 @@ const readMessage = async (input: IReadMessage) => {
 }
 
 const createMessage = async (input: CreateMessageInput): Promise<any> => {
-  var message = new Message(input)
+  const message = new Message(input)
   await message.save()
   return message
 }
@@ -155,10 +203,10 @@ var createConversation = async (
   return conversation
 }
 
-
-export { 
-  getConversationInfo,
-  createMessage, 
-  createConversation, 
+export {
+  getDirectMessage,
+  createMessage,
+  createConversation,
   readMessage,
+  getReplies,
 }

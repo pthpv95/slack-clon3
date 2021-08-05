@@ -30,9 +30,12 @@ const isAuthenticated = () => {
     })
 }
 
+const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+
 export {
   generateUniqueId,
   isServer,
   getUserId,
-  isAuthenticated
+  isAuthenticated,
+  delay
 }

@@ -8,6 +8,7 @@ export const SocketEvents = {
 
 export const SocketActions = {
   send_message: "send_message",
+  send_message_in_thread: "send_message_in_thread",
   read_message: "read_message",
   typing_message: "typing_message",
   stop_typing_message: "stop_styping_message",

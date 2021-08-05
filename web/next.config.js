@@ -1,6 +1,6 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ['picsum.photos', 'ca.slack-edge.com'],
+    domains: ['picsum.photos', 'i.picsum.photos'],
   },
 }

@@ -10,21 +10,21 @@ const DirectMessage = ({ conversations, onClick }) => {
       <p className="sidebar-content__direct-message--title">Direct messages</p>
       {conversations && conversations.map((u, idx) => {
         return (
-          <div key={u.title} className={`sidebar-content__direct-message--user ${selectedContact === u._id ? 'active-contact' : ''}`}
+          <div key={u.title} className={`sidebar-content__direct-message--user ${selectedContact === u.id ? 'active-contact' : ''}`}
             onMouseEnter={() => {
-              setShowRemoveBtn(u._id)
+              setShowRemoveBtn(u.id)
             }}
             onMouseLeave={() => {
               setShowRemoveBtn(null)
             }}
             onClick={() => {
-              setSelectedContact(u._id)
+              setSelectedContact(u.id)
               onClick(u)
             }}
           >
             <Image src={u.avatar} alt={u.name} width={30} height={30} />
             <p>{u.title}</p>
-            {showRemoveBtn === u._id &&
+            {showRemoveBtn === u.id &&
               <div className="remove-teammates">
                 <Image src={'/assets/icons/x.svg'} alt={u.name} width={30} height={30} />
               </div>

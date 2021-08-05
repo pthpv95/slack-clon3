@@ -1,25 +1,27 @@
 import mongoose, { Schema, Document } from "mongoose"
 
 interface IThread extends Document {
-  title: string
-  memberIds: string[]
-  createdBy: string
+  id: string
+  messageIds: string[]
   createdAt: Date
 }
 
 const ThreadSchema = new Schema({
-  messageId: {
-    type: String,
-    required: true,
-  },
-  subMessageIds: [{
+  messageIds: [{
     type: String,
     required: true,
   }],
   createdAt: {
     type: Schema.Types.Number,
-    default: Date.now(),
   },
+},{
+  timestamps: true,
+  toObject: {
+    transform: (doc, ret) => {
+      ret.id = doc._id;
+      delete ret._id;
+    }
+  }
 })
 
 const Thread = mongoose.model<IThread>(

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Avatar from './avatar';
+import React, { useEffect, useRef, useState } from 'react'
+import Avatar from './avatar'
 
 const MoreAction = ({ message, handleMoreAction }) => {
   const actions = [
@@ -15,7 +15,7 @@ const MoreAction = ({ message, handleMoreAction }) => {
       type: 'reply',
       text: 'Reply',
     },
-  ];
+  ]
   return (
     <div className="message__more-actions">
       {actions.map((action) => {
@@ -24,34 +24,34 @@ const MoreAction = ({ message, handleMoreAction }) => {
             key={action.type}
             className="message__more-actions--item"
             onClick={(e) => {
-              handleMoreAction({ ...action, id: message.id });
+              handleMoreAction({ ...action, id: message.id })
             }}
           >
             {action.text}
           </div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
 const MessageItem = ({ message, isInThread, handleMoreAction }) => {
-  const [isHover, setIsHover] = useState(false);
+  const [isHover, setIsHover] = useState(false)
 
   return (
     <div
       className="message"
       onMouseEnter={(e) => {
-        setIsHover(true);
+        setIsHover(true)
       }}
       onMouseLeave={() => {
-        setIsHover(false);
+        setIsHover(false)
       }}
     >
-      <Avatar />
+      <Avatar src={message.avatarUrl} />
       <div className="message__content">
         <p className="message__content--username">
-          Lee Pham
+          {message.createdBy}
           {!isInThread && (
             <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
           )}
@@ -65,7 +65,7 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
                   <div key={`reaction_${reaction.key}`}>
                     {reaction.text} {reaction.times}
                   </div>
-                );
+                )
               })}
           </div>
         )}
@@ -74,36 +74,64 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
         <MoreAction message={message} handleMoreAction={handleMoreAction} />
       )}
     </div>
-  );
-};
+  )
+}
 
-const Messages = ({ messages, isInThread, handleMoreAction }) => {
-  const messagesRef = useRef();
+const Messages = ({
+  messages,
+  isInThread,
+  fetchMore,
+  hasMore,
+  handleMoreAction,
+  onFetchMore,
+}) => {
+  const messagesRef = useRef()
+
   useEffect(() => {
     if (messagesRef && messagesRef.current) {
-      messagesRef.current.scroll({
-        top: messagesRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+      if (!fetchMore) {
+        messagesRef.current.scroll({
+          top: messagesRef.current.scrollHeight,
+        })
+      } else if (hasMore) {
+        messagesRef.current.scroll({
+          top: 80,
+        })
+      }
     }
-  }, [messages]);
-  return (
-    <div className="message-list" ref={messagesRef}>
-      {messages && messages.map((item, index) => {
-        return (
-          <div key={`message_${item.id}`}>
-            <MessageItem
-              key={index}
-              message={item}
-              isInThread={isInThread}
-              handleMoreAction={handleMoreAction}
-            />
-            {index !== messages.length - 1 && <div className="line-break" />}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
+  }, [messages])
 
-export default React.memo(Messages, (prev, next) => prev.messages === next.messages);
+  const handleScroll = (e) => {
+    e.preventDefault()
+    if (messagesRef.current.scrollTop === 0 || !hasMore) {
+      return
+    }
+    if (messagesRef.current.scrollTop < 20) {
+      onFetchMore()
+    }
+  }
+
+  return (
+    <div className="message-list" ref={messagesRef} onScroll={handleScroll}>
+      {messages &&
+        messages.map((item, index) => {
+          return (
+            <div key={`message_${item.id}`}>
+              <MessageItem
+                key={index}
+                message={item}
+                isInThread={isInThread}
+                handleMoreAction={handleMoreAction}
+              />
+              {index !== messages.length - 1 && <div className="line-break" />}
+            </div>
+          )
+        })}
+    </div>
+  )
+}
+
+export default React.memo(
+  Messages,
+  (prev, next) => prev.messages === next.messages
+)

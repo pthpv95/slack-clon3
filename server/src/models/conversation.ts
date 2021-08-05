@@ -29,6 +29,14 @@ const ConversationSchema = new Schema({
     required: true,
     default: 0 // private: 0 | group: 1
   },
+}, {
+  timestamps: true,
+  toObject: {
+    transform: (doc, ret) => {
+      ret.id = doc._id;
+      delete ret._id;
+    }
+  }
 })
 
 const Conversation = mongoose.model<IConversation>(

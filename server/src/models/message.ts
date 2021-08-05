@@ -5,7 +5,10 @@ export interface IMessage extends Document {
   attachmentUrl: string
   conversationId: string
   type: number
+  replies: number
+  threadId?: string
   createdBy: string
+  avatarUrl: string
   createdAt: Date
 }
 
@@ -21,18 +24,31 @@ const MessageSchema = new Schema(
       type: Schema.Types.String,
       required: true,
     },
+    threadId: {
+      type: Schema.Types.String,
+    },
     type: {
       type: Number,
       required: true,
     },
     createdBy: {
-      type: Schema.Types.String,
+      type: Schema.Types.String
     },
     createdAt: {
       type: Schema.Types.Date,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toObject: {
+      transform: (doc, ret) => {
+        ret.id = doc._id;
+        ret.timestamp = doc.createdAt;
+        delete ret._id;
+        delete ret.createdAt;
+      }
+    }
+  }
 )
 
 const Message = mongoose.model<IMessage>("messages", MessageSchema)

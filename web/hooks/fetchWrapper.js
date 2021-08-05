@@ -7,7 +7,7 @@ const fetchWrapper = async (url, method, body = null) => {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: body ? body : null
+      body: body ? JSON.stringify(body) : null
     });
     if (res.ok) {
       return res.json();

@@ -23,8 +23,7 @@ const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
         <input className="search__box--input" placeholder="Search anything ... "/>
       </div>
       <div className="search__user-info">
-        <Image src={`/assets/avatar1.jpeg`} alt={data.firstName} width={30} height={30} />
-        {/* <p>{data.firstName + ' ' + data.lastName}</p> */}
+        <Image src={data.avatarUrl} alt={data.firstName} width={30} height={30} />
       </div>
     </>
   );
