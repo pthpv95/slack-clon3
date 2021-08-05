@@ -32,6 +32,10 @@
 
       &::-webkit-scrollbar {
         // display: none;
+        // -webkit-scrollbar-thumb: #818384;
+        // -webkit-scrollbar-track: $color-primary;
+        // -webkit-scrollbar-color: #6969dd #e0e0e0;
+        // scrollbar-width: thin;
       }
       .message {
         display: flex;

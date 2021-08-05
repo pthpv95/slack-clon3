@@ -77,7 +77,7 @@ export default function Chat() {
       conversationId: data.id,
       cursor,
     })
-    const _messages = _mapMessage(response)
+    const _messages = _mapMessage(response.messages, response.members)
     memberRef.current = response.members
     setMessages(_messages)
     setHasMore(!!response.nextCursor)
@@ -85,9 +85,9 @@ export default function Chat() {
     cursorRef.current = response.nextCursor
   }
 
-  const _mapMessage = (response) => {
-    const _messages = response.messages.map((m) => {
-      const user = response.members.find((member) => member.id == m.createdBy)
+  const _mapMessage = (messages, members) => {
+    const _messages = messages.map((m) => {
+      const user = members.find((member) => member.id == m.createdBy)
       return {
         ...m,
         createdBy: user?.firstName,
@@ -104,7 +104,8 @@ export default function Chat() {
       id: thread.id,
       title: thread.title,
       createdBy: thread.createdBy,
-      replies,
+      avatarUrl: thread.avatarUrl,
+      replies: _mapMessage(replies, memberRef.current),
     })
   }
 
@@ -120,7 +121,7 @@ export default function Chat() {
       cursor: nextCursor,
       limit: 5,
     })
-    const _messages = _mapMessage(response)
+    const _messages = _mapMessage(response.messages, response.members)
     setIsFetchMore(true)
     setMessages([..._messages, ...messages])
     setHasMore(!!response.nextCursor)
@@ -151,15 +152,16 @@ export default function Chat() {
         const userInfo = memberRef.current.find(
           (mem) => mem.id == data.createdBy
         )
+        const _message = {
+          ...data,
+          createdBy: userInfo.firstName,
+          avatarUrl: userInfo.avatarUrl,
+        }
+
         if (!data.threadId) {
-          const _message = {
-            ...data,
-            createdBy: userInfo.firstName,
-            avatarUrl: userInfo.avatarUrl,
-          }
           setNewMessage(_message)
         } else {
-          setNewReply(data)
+          setNewReply(_message)
         }
       }
     })

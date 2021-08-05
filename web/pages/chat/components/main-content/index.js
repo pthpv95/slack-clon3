@@ -1,42 +1,51 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Input from '../shared/input';
-import Messages from '../shared/messages';
+import React, { useEffect, useRef, useState } from 'react'
+import Input from '../shared/input'
+import Messages from '../shared/messages'
 
-const MainContent = ({ newMessage, messages, fetchMore = false, hasMore, onOpenThread, onSendMessage, onFetchMore }) => {
-  const [textMessage, setTextMessage] = useState('');
-  const [_messages, setMessages] = useState([]);
-  const inputRef = useRef();
+const MainContent = ({
+  newMessage,
+  messages,
+  fetchMore = false,
+  hasMore,
+  onOpenThread,
+  onSendMessage,
+  onFetchMore,
+}) => {
+  const [textMessage, setTextMessage] = useState('')
+  const [_messages, setMessages] = useState([])
+  const inputRef = useRef()
 
   useEffect(() => {
     if (newMessage) {
       const newList = [..._messages, newMessage]
-      if (_messages.some(n => n.id === newMessage.id)) {
+      if (_messages.some((n) => n.id === newMessage.id)) {
         return
       }
-      setMessages(newList);
+      setMessages(newList)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newMessage])
 
   useEffect(() => {
     if (inputRef && inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus()
     }
     setMessages(messages)
   }, [messages])
 
   const handleMoreAction = (action) => {
     if (action.type === 'reply') {
-      const message = messages.find((m) => m.id === action.id);
+      const message = messages.find((m) => m.id === action.id)
       onOpenThread({
         title: message.text,
         id: message.id,
         createdBy: message.createdBy,
+        avatarUrl: message.avatarUrl,
         replies: [],
-      });
-      return;
+      })
+      return
     }
-  };
+  }
   return (
     <div className="main-chat__content">
       <Messages
@@ -48,9 +57,9 @@ const MainContent = ({ newMessage, messages, fetchMore = false, hasMore, onOpenT
       />
       <form
         onSubmit={(e) => {
-          e.preventDefault();
-          setTextMessage('');
-          onSendMessage(textMessage);
+          e.preventDefault()
+          setTextMessage('')
+          onSendMessage(textMessage)
         }}
       >
         <div className="main-chat__input-box">
@@ -61,13 +70,13 @@ const MainContent = ({ newMessage, messages, fetchMore = false, hasMore, onOpenT
             ref={inputRef}
             autoFocus={true}
             onChange={(e) => {
-              setTextMessage(e.target.value);
+              setTextMessage(e.target.value)
             }}
           />
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default MainContent;
+export default MainContent
