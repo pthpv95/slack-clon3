@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react'
 import Avatar from '../shared/avatar'
 import Input from '../shared/input'
@@ -25,7 +26,7 @@ const Thread = ({
       }
       setMessages(newList)
     }
-  }, [newReply])
+  }, [messages, newReply])
 
   useEffect(() => {
     setMessages(thread.replies)

@@ -110,7 +110,7 @@ const Messages = ({
         })
       }
     }
-  }, [messages])
+  }, [fetchMore, hasMore, messages])
 
   const handleScroll = (e) => {
     e.preventDefault()

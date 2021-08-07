@@ -32,7 +32,7 @@ const DirectMessage = ({ conversations, onClick }) => {
           </div>)
       })}
       <div className="sidebar-content__direct-message--add-teammate">
-        <Image src={'/assets/icons/plus.svg'} width={25} height={25} />
+        <Image src={'/assets/icons/plus.svg'} alt="plus" width={25} height={25} />
         <p>
           Add teammates
         </p>

@@ -1,5 +1,6 @@
 import React from 'react';
 
+// eslint-disable-next-line react/display-name
 const Input = React.forwardRef((props, ref) => (
   <input
     className="input-chat"
