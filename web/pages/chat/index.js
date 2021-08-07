@@ -13,7 +13,9 @@ import Search from './components/search'
 import Sidebar from './components/sidebar'
 import Thread from './components/thread'
 
-const socket = io(process.env.NEXT_PUBLIC_BE_HOST)
+const socket = io(process.env.NEXT_PUBLIC_BE_HOST, {
+  withCredentials: true,
+})
 
 export default function Chat() {
   const router = useRouter()
