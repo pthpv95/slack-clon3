@@ -140,9 +140,9 @@ export default function Chat() {
       setSocketConnected(true)
     })
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (e) => {
       setSocketConnected(false)
-      console.log('disconnected to server')
+      console.log('disconnected to server', e)
     })
 
     socket.on(SocketEvents.new_message, (data) => {
