@@ -13,6 +13,7 @@ import { IReadMessage } from '../types/message/IReadMessage'
 
 const app = require('express')()
 const server = createServer(app)
+console.log(process.env.SOCKETIO_ALLOW_ORIGIN)
 const io = new Server(server, {
   cors: {
     origin: process.env.SOCKETIO_ALLOW_ORIGIN,
