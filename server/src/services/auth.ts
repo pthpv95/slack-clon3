@@ -1,22 +1,22 @@
-import { Identity } from "../models/identity"
-import { User } from "../models/user"
+import { Identity } from '../models/identity'
+import { User } from '../models/user'
 import bcrypt from 'bcrypt'
-import { IRegisterUserInput } from "../types/user/IRegisterUserInput"
-import { ErrorDTO } from "../types/error/error"
+import { IRegisterUserInput } from '../types/user/IRegisterUserInput'
+import { ErrorDTO } from '../types/error/error'
 import passport from 'passport'
-const LocalStrategy = require("passport-local").Strategy
+const LocalStrategy = require('passport-local').Strategy
 
 const registerUser = async (input: IRegisterUserInput) => {
   const identityDoc = new Identity({
-    userName: input.userName,
+    username: input.username,
     password: input.password,
   })
 
-  const userExisted = await Identity.findOne({username: input.userName})
-  if(userExisted){
-    throw new Error("Username existed")
+  const userExisted = await Identity.findOne({ username: input.username })
+  if (userExisted) {
+    throw new Error('Username existed')
   }
-  
+
   const identity = await identityDoc.save()
   const user = new User({
     firstName: input?.firstName,
@@ -34,7 +34,7 @@ const login = async (username: string, password: string) => {
     new LocalStrategy(async (username: string, password, done) => {
       const identity = await Identity.findOne({ username })
       if (!identity) {
-        throw new ErrorDTO("User not found")
+        throw new ErrorDTO('User not found')
       }
 
       try {
@@ -44,7 +44,7 @@ const login = async (username: string, password: string) => {
         }
         return done(null, false)
       } catch (error) {
-        throw new ErrorDTO("Invalid username/password")
+        throw new ErrorDTO('Invalid username/password')
       }
     })
   )
@@ -53,7 +53,7 @@ const login = async (username: string, password: string) => {
   // if(!identity){
   //   throw new ErrorDTO("User not found")
   // }
-  
+
   // try {
   //   const same = await bcrypt.compare(password, identity.password)
   //   if(same){

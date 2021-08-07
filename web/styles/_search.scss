@@ -12,14 +12,14 @@
     input {
       height: 2.5rem;
       border-radius: 5px;
-      border: 0.5px solid #A388A1;
+      border: 0.5px solid #a388a1;
       width: inherit;
       outline: none;
-      background-color:#5C2C5C;
+      background-color: #5c2c5c;
       color: $color-text-primary;
       margin-right: auto;
       padding: 1rem;
-      &::placeholder{
+      &::placeholder {
         color: inherit;
       }
     }
@@ -29,9 +29,25 @@
     align-items: center;
     justify-content: flex-end;
     margin-right: 1rem;
+    position: relative;
     img {
       cursor: pointer;
       border-radius: 20%;
+    }
+
+    &--toggle-data {
+      position: absolute;
+      top: 3.5rem;
+      width: 5rem;
+      height: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid $color-secondary;
+      border-radius: 1rem;
+      z-index: 100;
+      background-color: whitesmoke;
+      cursor: pointer;
     }
   }
 }

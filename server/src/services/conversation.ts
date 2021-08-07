@@ -1,5 +1,5 @@
-import { Conversation } from "../models/conversation";
-import { UserConversation } from "../models/userConversation";
+import { Conversation } from '../models/conversation'
+import { UserConversation } from '../models/userConversation'
 
 export interface CreateConversationInput {
   title: string
@@ -9,35 +9,32 @@ export interface CreateConversationInput {
 
 const createConversations = async (input: CreateConversationInput) => {
   const conversations = new Conversation(input)
-  const conversions = await conversations.save();
-  const userConversation = await UserConversation.findOne({ userId: input.createdBy })
-  if(!userConversation){
+  const conversions = await conversations.save()
+  const userConversation = await UserConversation.findOne({
+    userId: input.createdBy,
+  })
+  if (!userConversation) {
     throw new Error('user conversation not found')
   }
   userConversation.set({
-    conversationIds: [...userConversation.conversationIds, conversations.id]
+    conversationIds: [...userConversation.conversationIds, conversations.id],
   })
-  await userConversation.save();
-  return conversions;
+  await userConversation.save()
+  return conversions
 }
-
 
 const getUserConversations = async (id: string) => {
   const userConversations = await UserConversation.findOne({
-    userId: id
+    userId: id,
   })
-
   const conversions = await Conversation.find({
     _id: { $in: userConversations?.conversationIds },
   })
 
-  return conversions.map(c => ({
+  return conversions.map((c) => ({
     ...c.toObject(),
-    avatar: 'https://picsum.photos/200'
-  }));
+    avatar: 'https://picsum.photos/200',
+  }))
 }
 
-export {
-  createConversations,
-  getUserConversations
-}
+export { createConversations, getUserConversations }

@@ -1,19 +1,25 @@
-import { asyncForEach } from "../helpers"
-import { Contact } from "../models/contact"
-import { Conversation } from "../models/conversation"
-import { IUser, User } from "../models/user"
+import { asyncForEach } from '../helpers'
+import { Contact } from '../models/contact'
+import { Conversation } from '../models/conversation'
+import { IUser, User } from '../models/user'
 
 export class UserInfo {
-  constructor(id: string, firstName: string, lastName: string, email: string, avatarUrl: string) {
+  constructor(
+    id: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    avatarUrl: string
+  ) {
     this.id = id
     this.firstName = firstName
     this.lastName = lastName
     this.email = email
-    this.avatarUrl = avatarUrl
+    this.avatarUrl = avatarUrl || 'https://picsum.photos/200/300'
   }
 
   getDisplayName() {
-    return this.firstName + ' ' + this.lastName;
+    return this.firstName + ' ' + this.lastName
   }
 
   id: string
@@ -43,7 +49,13 @@ const getUser = async (id: string) => {
   var user = await User.findById(id)
 
   if (user) {
-    return new UserInfo(user.id, user.firstName, user.lastName, user.email, user.avatarUrl)
+    return new UserInfo(
+      user.id,
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.avatarUrl
+    )
   }
 
   throw new Error('USER_NOT_FOUND')
@@ -53,7 +65,13 @@ const getUserByIdentityId = async (identityId: string) => {
   var user = await User.findOne({ identityId })
 
   if (user) {
-    return new UserInfo(user.id, user.firstName, user.lastName, user.email, user.avatarUrl)
+    return new UserInfo(
+      user.id,
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.avatarUrl
+    )
   }
 
   throw new Error('USER_NOT_FOUND')
@@ -91,8 +109,6 @@ const getUserContacts = async (userId: string) => {
   return contactsInfo
 }
 
-const searchContacts = (userId: string) => {
-
-}
+const searchContacts = (userId: string) => {}
 
 export { getUser, getUserContacts, getUserByIdentityId, searchContacts }

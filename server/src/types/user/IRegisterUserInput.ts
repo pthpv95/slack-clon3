@@ -1,6 +1,6 @@
-export interface IRegisterUserInput{
+export interface IRegisterUserInput {
   firstName?: string
   lastName?: string
-  userName: string
+  username: string
   password: string
 }

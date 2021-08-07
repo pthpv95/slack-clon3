@@ -1,6 +1,6 @@
-import { createAdapter } from '@socket.io/redis-adapter'
+// import { createAdapter } from '@socket.io/redis-adapter'
 import { createServer } from 'http'
-import { createClient } from 'redis'
+// import { createClient } from 'redis'
 import { Server, Socket } from 'socket.io'
 import { SocketActions, SocketEvents } from '../constants'
 import {
@@ -21,13 +21,13 @@ const io = new Server(server, {
   },
 })
 
-const pubClient = createClient({
-  host: 'localhost',
-  port: 6379,
-  auth_pass: '123456',
-})
-const subClient = pubClient.duplicate()
-io.adapter(createAdapter(pubClient, subClient))
+// const pubClient = createClient({
+//   host: 'localhost',
+//   port: 6379,
+//   auth_pass: '123456',
+// })
+// const subClient = pubClient.duplicate()
+// io.adapter(createAdapter(pubClient, subClient))
 
 io.on('connection', (socket: Socket) => {
   // socket.emit(SocketEvents.new_message, 'welcome ...');
@@ -55,7 +55,6 @@ io.on('connection', (socket: Socket) => {
       conversationId: data.conversationId,
       threadId: data.threadId,
     }
-    console.log(input)
     const message = await createMessage(input)
     io.emit(SocketEvents.new_message, message.toObject())
     cb && cb()

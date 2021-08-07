@@ -6,9 +6,9 @@
   "author": "Hien Pham",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "NODE_ENV=development nodemon",
     "build": "rimraf ./build && tsc",
-    "start": "yarn build && node build/index.js"
+    "start": "yarn build && NODE_ENV=production node build/index.js"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -21,6 +21,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/redis": "^2.8.31",
     "@types/socket.io": "^3.0.2",
+    "dotenv": "^10.0.0",
     "nodemon": "^2.0.4",
     "rimraf": "^3.0.2",
     "ts-node": "^9.0.0",
