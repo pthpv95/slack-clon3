@@ -44,10 +44,6 @@ app.use(
   conversations
 )
 const port = process.env.PORT || 3001
-app.get('/', async (req: express.Request, res: express.Response) => {
-  var users = await User.findOne()
-  res.send(users)
-})
 
 server.listen(port, () => {
   console.log(`Chat app listening at http://localhost:${port}`)
