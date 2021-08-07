@@ -1,5 +1,5 @@
 const login = (username, password) => {
-  return fetch(process.env.NEXT_PUBLIC_BE_HOST + '/api/auth/login', {
+  return fetch(process.env.NEXT_PUBLIC_BE_HOST_API + '/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
