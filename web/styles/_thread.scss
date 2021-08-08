@@ -1,18 +1,22 @@
 .thread {
   grid-column: 4/-1;
   grid-row: 2/-1;
-  &__heading{
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-column: 1/-1;
+  }
+  &__heading {
     display: flex;
     justify-content: space-between;
     padding: 1rem;
-    h4{
+    h4 {
       font-size: 1.7rem;
     }
     & > * {
       align-self: center;
     }
   }
-  &__num-replies{
+  &__num-replies {
     display: flex;
     align-items: center;
     margin-left: 1.5rem;
@@ -21,22 +25,22 @@
     span {
       margin-right: 1rem;
     }
-    &::after{
+    &::after {
       content: '';
       height: 1.5px;
       background-color: $color-secondary;
       width: 85%;
     }
   }
-  &__sub-heading{
+  &__sub-heading {
     display: flex;
     margin-left: 1.5rem;
-    img{
+    img {
       width: 3.5rem;
       height: 3.5rem;
       border-radius: 30%;
     }
-    &--text{
+    &--text {
       align-self: center;
       display: flex;
       margin-left: 1rem;

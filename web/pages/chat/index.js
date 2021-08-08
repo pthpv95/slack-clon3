@@ -6,7 +6,7 @@ import { io } from 'socket.io-client'
 import { SocketActions, SocketEvents } from '../../constants/events'
 import useUser from '../../hooks/auth/useUser'
 import useQueryUserConversations from '../../hooks/chat/useQueryUserConversations'
-import { delay } from '../../utils'
+import { delay, isMobile } from '../../utils'
 import { getDirectMessage, getReplies } from '../api/chat'
 import MainContent from './components/main-content'
 import Search from './components/search'
@@ -16,11 +16,11 @@ import Thread from './components/thread'
 const socket = io(process.env.NEXT_PUBLIC_BE_HOST)
 
 export default function Chat() {
-  const router = useRouter()
+  // const router = useRouter()
 
   // use state
   const [thread, setThread] = useState(null)
-  const [threadsData, setThreadsData] = useState([])
+  // const [threadsData, setThreadsData] = useState([])
   const [sidebarWidth, setSidebarWidth] = useState(0)
   const [selectedDirectMessage, setSelectedDirectMessage] = useState(null)
   const [initialSidebarWidth, setInitialSizeBarWidth] = useState(0)
@@ -28,10 +28,10 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState(null)
   const [newReply, setNewReply] = useState(null)
   const [messages, setMessages] = useState([])
-  const [nextCursor, setNextCursor] = useState(null)
+  // const [nextCursor, setNextCursor] = useState(null)
   const [fetchMore, setIsFetchMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
-
+  const [selectedScreen, setSelectedScreen] = useState()
   // use queries
   const { data: user } = useUser()
   const { data: conversations } = useQueryUserConversations()
@@ -40,6 +40,8 @@ export default function Chat() {
   const sidebarRef = useRef()
   const memberRef = useRef()
   const cursorRef = useRef()
+
+  const isMobileScreen = isMobile()
 
   const handleSubmitReply = (reply, thread) => {
     socket.emit(SocketActions.send_message_in_thread, {
@@ -70,6 +72,10 @@ export default function Chat() {
   }
 
   const handleSelectDirectMessage = async (data, cursor = null) => {
+    if (selectedScreen && isMobileScreen) {
+      setSelectedScreen('main')
+    }
+
     setSelectedDirectMessage(data)
     const response = await getDirectMessage({
       conversationId: data.id,
@@ -97,6 +103,7 @@ export default function Chat() {
   }
 
   const handleOpenThread = async (thread) => {
+    isMobileScreen && setSelectedScreen('thread')
     const replies = await getReplies(thread.id)
     setThread({
       id: thread.id,
@@ -131,6 +138,7 @@ export default function Chat() {
       setInitialSizeBarWidth(sidebarRef.current.clientWidth)
     }
 
+    setSelectedScreen(isMobileScreen ? 'sidebar' : null)
     // TODO: Handle when window resizes
     // window.addEventListener('resize', (e) => {
     // setSidebarWidth('auto')
@@ -173,72 +181,153 @@ export default function Chat() {
     }
   }, [conversations, socketConnected])
 
-  return (
-    <>
-      <Head>
-        {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
-      </Head>
+  const renderScreen = () => {
+    if (!selectedScreen) {
+      return (
+        <div className={`container ${thread ? 'container-open-thread' : ''}`}>
+          <div className="search">
+            <Search />
+          </div>
+          <div className="header">
+            {selectedDirectMessage && (
+              <div className="header__selected-contact">
+                <NextImage
+                  src={selectedDirectMessage.avatar}
+                  alt={selectedDirectMessage.title}
+                  width={30}
+                  height={30}
+                />
+                <p>{selectedDirectMessage.title}</p>
+              </div>
+            )}
+          </div>
+          <div
+            className="sidebar"
+            style={{ width: sidebarWidth ? sidebarWidth : 'auto' }}
+            ref={sidebarRef}
+          >
+            <Sidebar
+              conversations={conversations}
+              onDirectMessageClick={handleSelectDirectMessage}
+            />
+          </div>
+          <div
+            draggable
+            className="resize"
+            onDrag={handleDrag}
+            onDragEnd={(e) => {}}
+            onDragStart={(e) => {
+              const img = new Image()
+              img.src =
+                'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+              e.dataTransfer.setDragImage(img, 0, 0)
+            }}
+          ></div>
+          <div className={`main-chat ${thread ? 'main-open-thread' : ''}`}>
+            {selectedDirectMessage && (
+              <MainContent
+                newMessage={newMessage}
+                messages={messages}
+                hasMore={hasMore}
+                fetchMore={fetchMore}
+                onSendMessage={handleSendMessage}
+                onOpenThread={handleOpenThread}
+                onFetchMore={handleFetchMore}
+              />
+            )}
+          </div>
+          {thread !== null && (
+            <Thread
+              thread={thread}
+              newReply={newReply}
+              onCloseThread={() => setThread(null)}
+              onSubmit={handleSubmitReply}
+            />
+          )}
+        </div>
+      )
+    }
+
+    const renderMobileScreen = () => {
+      switch (selectedScreen) {
+        case 'sidebar':
+          return (
+            <div
+              className="sidebar"
+              style={{ width: sidebarWidth ? sidebarWidth : 'auto' }}
+              ref={sidebarRef}
+            >
+              <Sidebar
+                conversations={conversations}
+                onDirectMessageClick={handleSelectDirectMessage}
+              />
+            </div>
+          )
+        case 'main':
+          return (
+            <>
+              <div className="header">
+                {selectedDirectMessage && (
+                  <div className="header__selected-contact">
+                    <NextImage
+                      src={'/assets/icons/left-arrow.svg'}
+                      alt={selectedDirectMessage.title}
+                      width={20}
+                      height={20}
+                      onClick={() => {
+                        setSelectedScreen('sidebar')
+                      }}
+                    />
+                    <p>{selectedDirectMessage.title}</p>
+                  </div>
+                )}
+              </div>
+              <div className="main-chat">
+                <MainContent
+                  newMessage={newMessage}
+                  messages={messages}
+                  hasMore={hasMore}
+                  fetchMore={fetchMore}
+                  onSendMessage={handleSendMessage}
+                  onOpenThread={handleOpenThread}
+                  onFetchMore={handleFetchMore}
+                />
+              </div>
+            </>
+          )
+        case 'thread':
+          return (
+            thread !== null && (
+              <Thread
+                thread={thread}
+                newReply={newReply}
+                onCloseThread={() => {
+                  setThread(null)
+                  setSelectedScreen('main')
+                }}
+                onSubmit={handleSubmitReply}
+              />
+            )
+          )
+        default:
+          break
+      }
+    }
+    return (
       <div className={`container ${thread ? 'container-open-thread' : ''}`}>
         <div className="search">
           <Search />
         </div>
-        <div className="header">
-          {selectedDirectMessage && (
-            <div className="header__selected-contact">
-              <NextImage
-                src={selectedDirectMessage.avatar}
-                alt={selectedDirectMessage.title}
-                width={30}
-                height={30}
-              />
-              <p>{selectedDirectMessage.title}</p>
-            </div>
-          )}
-        </div>
-        <div
-          className="sidebar"
-          style={{ width: sidebarWidth ? sidebarWidth : 'auto' }}
-          ref={sidebarRef}
-        >
-          <Sidebar
-            conversations={conversations}
-            onDirectMessageClick={handleSelectDirectMessage}
-          />
-        </div>
-        <div
-          draggable
-          className="resize"
-          onDrag={handleDrag}
-          onDragEnd={(e) => {}}
-          onDragStart={(e) => {
-            const img = new Image()
-            img.src =
-              'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
-            e.dataTransfer.setDragImage(img, 0, 0)
-          }}
-        ></div>
-        <div className={`main-chat ${thread ? 'main-open-thread' : ''}`}>
-          {selectedDirectMessage && (
-            <MainContent
-              newMessage={newMessage}
-              messages={messages}
-              hasMore={hasMore}
-              fetchMore={fetchMore}
-              onSendMessage={handleSendMessage}
-              onOpenThread={handleOpenThread}
-              onFetchMore={handleFetchMore}
-            />
-          )}
-        </div>
-        {thread !== null && (
-          <Thread
-            thread={thread}
-            newReply={newReply}
-            onCloseThread={() => setThread(null)}
-            onSubmit={handleSubmitReply}
-          />
-        )}
+        {renderMobileScreen()}
       </div>
+    )
+  }
+  return (
+    <>
+      {/* <Head>
+        <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" />
+      </Head> */}
+      {renderScreen()}
     </>
   )
 }

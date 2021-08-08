@@ -1,6 +1,10 @@
 .sidebar {
   grid-column: 1/1;
   grid-row: 2/-1;
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-column: 1/-1;
+  }
 }
 
 .sidebar-content {

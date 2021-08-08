@@ -3,13 +3,19 @@
   grid-row: 2/3;
   display: flex;
   padding-left: 1.7rem;
-  &__selected-contact{
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-column: 1/-1;
+  }
+
+  &__selected-contact {
     display: flex;
     align-items: center;
-    img{
+
+    img {
       border-radius: 30%;
     }
-    p{
+    p {
       margin-left: 1rem;
       font-size: 1.5rem;
       font-weight: 400;

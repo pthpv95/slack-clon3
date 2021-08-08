@@ -1,12 +1,18 @@
 $color-primary: #1a1d21;
 $color-secondary: rgb(53 55 59);
-$color-hover-contact: #27242C;
-$color-selected-contact: #3A2D3B;
-$color-link: #2B9BD1;
+$color-hover-contact: #27242c;
+$color-selected-contact: #3a2d3b;
+$color-link: #2b9bd1;
 
 $font-primary: 'Nunito', sans-serif;
-$bp-largest: 75em; // 1200px/16px
-$color-text-primary: rgb(195,195,194);
+$color-text-primary: rgb(195, 195, 194);
+
+$bp-largest: 75em; // 1200px
+$bp-large: 68.75em; // 1100px
+$bp-medium: 65.25em; // 900px/16
+$bp-small: 37.5em; // 600px/16
+$bp-smallest: 31.25em; // 500px/16
+
 *,
 *::before,
 *::after {
@@ -26,7 +32,6 @@ html {
 }
 
 body {
-  
 }
 
 .container {
@@ -38,16 +43,23 @@ body {
   // grid-column-gap: 1px;
   grid-row-gap: 1px;
   background-color: $color-secondary;
-  & > .main-chat, .thread, .header, .sidebar{
+  & > .main-chat,
+  .thread,
+  .header,
+  .sidebar {
     background-color: $color-primary;
+  }
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-template-columns: 100%;
   }
 }
 .container-open-thread {
   grid-template-columns: 1fr min-content 4fr 2fr;
-  & > .thread{
+  & > .thread {
     border-left: 1px solid $color-secondary;
   }
-  & > .main-open-thread{
+  & > .main-open-thread {
     border-left: 0;
   }
 }
@@ -63,7 +75,7 @@ body {
     background-color: lightskyblue;
   }
 
-  &:active{
+  &:active {
     cursor: move;
     background-color: lightskyblue;
   }

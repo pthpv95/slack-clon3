@@ -2,11 +2,18 @@
   grid-column: 3/-1;
   grid-row: 3/-1;
   position: relative;
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-column: 1/-1;
+  }
+
   &__input-box {
     position: absolute;
     bottom: 0;
     padding: 1.5rem;
     width: 100%;
+    display: flex;
+
     & > input {
       width: inherit;
       padding: 1.5rem;
@@ -15,6 +22,17 @@
       background-color: $color-secondary;
       border-color: whitesmoke;
       color: #fff;
+    }
+
+    & > button {
+      display: none;
+    }
+
+    @media only screen and(max-width: $bp-smallest) {
+      & > button {
+        display: inline-block;
+        margin-left: 0.5rem;
+      }
     }
   }
 

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react'
 import Avatar from '../shared/avatar'
 import Input from '../shared/input'
@@ -13,10 +12,6 @@ const Thread = ({
 }) => {
   const [reply, setReply] = useState('')
   const [messages, setMessages] = useState([])
-
-  if (!thread) {
-    return <></>
-  }
 
   useEffect(() => {
     if (newReply) {

@@ -46,6 +46,7 @@ const MainContent = ({
       return
     }
   }
+
   return (
     <div className="main-chat__content">
       <Messages
@@ -69,10 +70,12 @@ const MainContent = ({
             autoComplete="off"
             ref={inputRef}
             autoFocus={true}
+            onFocusOut
             onChange={(e) => {
               setTextMessage(e.target.value)
             }}
           />
+          <button type="submit">Send</button>
         </div>
       </form>
     </div>

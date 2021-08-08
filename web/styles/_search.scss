@@ -3,9 +3,13 @@
   grid-row: 1/1;
   display: grid;
   grid-template-columns: 97% 3%;
+
+  @media only screen and(max-width: $bp-smallest) {
+    grid-template-columns: 90% 10%;
+  }
+
   background-color: #4a154b;
   &__box {
-    width: 70rem;
     display: flex;
     align-items: center;
     justify-self: center;
@@ -30,6 +34,7 @@
     justify-content: flex-end;
     margin-right: 1rem;
     position: relative;
+
     img {
       cursor: pointer;
       border-radius: 20%;
