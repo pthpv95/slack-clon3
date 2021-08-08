@@ -29,6 +29,7 @@
     }
 
     @media only screen and(max-width: $bp-smallest) {
+      bottom: auto;
       & > button {
         display: inline-block;
         margin-left: 0.5rem;
@@ -40,6 +41,10 @@
     .message-list {
       overflow-y: auto;
       height: 80vh;
+
+      @media only screen and(max-width: $bp-smallest) {
+        height: 70vh;
+      }
 
       &::-webkit-scrollbar {
         display: none;

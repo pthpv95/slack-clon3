@@ -324,9 +324,14 @@ export default function Chat() {
   }
   return (
     <>
-      {/* <Head>
-        <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" />
-      </Head> */}
+      <Head>
+        {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
+        <meta name="og:title" content="Awesome chat app" />
+        <meta
+          property="og:image"
+          content="http://euro-travel-example.com/thumbnail.jpg"
+        />
+      </Head>
       {renderScreen()}
     </>
   )
