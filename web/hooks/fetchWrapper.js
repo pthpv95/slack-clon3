@@ -1,27 +1,26 @@
 const fetchWrapper = async (url, method, body = null) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token')
   try {
     const res = await fetch(process.env.NEXT_PUBLIC_BE_HOST + `/api${url}`, {
       method: method,
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-      body: body ? JSON.stringify(body) : null
-    });
+      body: body ? JSON.stringify(body) : null,
+      mode: 'no-cors',
+    })
     if (res.ok) {
-      return res.json();
+      return res.json()
     }
-    throw res;
+    throw res
   } catch (err) {
     if (err.status === 401) {
-      window.location.href = '/login';
-      return;
+      window.location.href = '/login'
+      return
     }
-    throw err;
+    throw err
   }
 }
 
-export {
-  fetchWrapper
-}
+export { fetchWrapper }
