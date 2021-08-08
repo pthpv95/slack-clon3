@@ -8,6 +8,7 @@ const login = (username, password) => {
       username,
       password,
     }),
+    mode: 'cors',
   })
     .then((res) => {
       if (res.ok) {

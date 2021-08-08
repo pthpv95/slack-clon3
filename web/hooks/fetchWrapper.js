@@ -8,6 +8,7 @@ const fetchWrapper = async (url, method, body = null) => {
         'Content-Type': 'application/json',
       },
       body: body ? JSON.stringify(body) : null,
+      mode: 'cors',
     })
     if (res.ok) {
       return res.json()
