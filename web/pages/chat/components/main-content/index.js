@@ -70,7 +70,6 @@ const MainContent = ({
             autoComplete="off"
             ref={inputRef}
             autoFocus={true}
-            onFocusOut
             onChange={(e) => {
               setTextMessage(e.target.value)
             }}

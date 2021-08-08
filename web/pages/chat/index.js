@@ -171,7 +171,7 @@ export default function Chat() {
         }
       }
     })
-  }, [])
+  }, [isMobileScreen])
 
   useEffect(() => {
     if (conversations && socketConnected) {

@@ -36,15 +36,15 @@ const Thread = ({
         </button>
       </div>
       <div className="thread__sub-heading">
-        <Avatar src={thread.avatarUrl} />
+        <Avatar src={thread?.avatarUrl} />
         <div className="thread__sub-heading--text">
-          <p className="thread__sub-heading--owner">{thread.createdBy}</p>
-          <p>{thread.title}</p>
+          <p className="thread__sub-heading--owner">{thread?.createdBy}</p>
+          <p>{thread?.title}</p>
         </div>
       </div>
-      {thread.replies.length > 0 && (
+      {thread?.replies.length > 0 && (
         <div className="thread__num-replies">
-          <span>{thread.replies.length} replies</span>
+          <span>{thread?.replies.length} replies</span>
         </div>
       )}
       <div className="thread">
