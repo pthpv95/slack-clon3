@@ -29,8 +29,8 @@ router.post('/login', async (req, res, next) => {
   passport.authenticate('login', (err, users, info) => {
     if (err) {
       console.error(`error ${err}`)
-    }
-    if (info !== undefined) {
+      res.status(401).send({ error: err.message })
+    } else if (info !== undefined) {
       console.error(info.message)
       if (info.message === 'bad username') {
         res.status(401).send(info.message)

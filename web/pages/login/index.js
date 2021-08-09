@@ -3,7 +3,7 @@ import useLogin from '../../hooks/auth/useLogin'
 
 const Login = () => {
   const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('123456')
+  const [password, setPassword] = useState('')
   const { isLoading, mutate } = useLogin(username, password)
   return (
     <div>
