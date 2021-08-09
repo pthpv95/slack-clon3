@@ -1,3 +1,4 @@
 A clone slack app to practice coding skills. :))
-username: thehienpv@gmail.com
-password: 123456
+## Login
+- username: hp@gmail.com
+- password: <qV#RDUc*S~63-ND
