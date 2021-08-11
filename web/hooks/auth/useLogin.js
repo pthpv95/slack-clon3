@@ -14,7 +14,7 @@ const useLogin = (username, password) => {
       })
       .catch((err) => {
         console.log(err)
-        alert(err.message)
+        alert('Wrong username/password')
       })
       .finally(() => {
         setIsLoading(false)

@@ -6,8 +6,9 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const { isLoading, mutate } = useLogin(username, password)
   return (
-    <div>
+    <div className="login-root">
       <form
+        className="login-root__form"
         onSubmit={async (e) => {
           e.preventDefault()
           mutate()

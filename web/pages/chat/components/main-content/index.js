@@ -29,9 +29,6 @@ const MainContent = ({
   }, [newMessage])
 
   useEffect(() => {
-    if (inputRef && inputRef.current) {
-      inputRef.current.focus()
-    }
     setMessages(messages)
   }, [messages])
 
