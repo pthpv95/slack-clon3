@@ -47,7 +47,7 @@
       }
 
       &::-webkit-scrollbar {
-        display: none;
+        // display: none;
       }
       .message {
         display: flex;
@@ -141,4 +141,13 @@
 
 .main-open-thread {
   grid-column: 3/4;
+}
+
+.message-list-skeleton {
+  display: grid;
+  grid-template-columns: 5% 95%;
+  padding: 1rem;
+  .message-skeleton-main {
+    margin-left: 1rem;
+  }
 }

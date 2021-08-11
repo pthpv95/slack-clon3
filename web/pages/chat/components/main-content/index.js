@@ -7,6 +7,7 @@ const MainContent = ({
   messages,
   fetchMore = false,
   hasMore,
+  isLoading,
   onOpenThread,
   onSendMessage,
   onFetchMore,
@@ -35,7 +36,7 @@ const MainContent = ({
 
   const handleMoreAction = (action) => {
     if (action.type === 'reply') {
-      const message = messages.find((m) => m.id === action.id)
+      const message = _messages.find((m) => m.id === action.id)
       onOpenThread({
         title: message.text,
         id: message.id,
@@ -51,6 +52,7 @@ const MainContent = ({
     <div className="main-chat__content">
       <Messages
         messages={_messages}
+        isLoading={isLoading}
         hasMore={hasMore}
         fetchMore={fetchMore}
         handleMoreAction={handleMoreAction}

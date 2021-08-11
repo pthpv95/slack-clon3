@@ -6,6 +6,7 @@ import Messages from '../shared/messages'
 const Thread = ({
   thread,
   newReply,
+  isLoading,
   onSubmit,
   onMoreAction,
   onCloseThread,

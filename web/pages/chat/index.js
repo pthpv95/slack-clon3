@@ -12,6 +12,7 @@ import MainContent from './components/main-content'
 import Search from './components/search'
 import Sidebar from './components/sidebar'
 import Thread from './components/thread'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 
 const socket = io(process.env.NEXT_PUBLIC_BE_HOST)
 
@@ -28,10 +29,12 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState(null)
   const [newReply, setNewReply] = useState(null)
   const [messages, setMessages] = useState([])
-  // const [nextCursor, setNextCursor] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingInThread, setIsLoadingInThread] = useState(false)
   const [fetchMore, setIsFetchMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [selectedScreen, setSelectedScreen] = useState()
+
   // use queries
   const { data: user } = useUser()
   const { data: conversations } = useQueryUserConversations()
@@ -75,7 +78,7 @@ export default function Chat() {
     if (selectedScreen && isMobileScreen) {
       setSelectedScreen('main')
     }
-
+    setIsLoading(true)
     setSelectedDirectMessage(data)
     const response = await getDirectMessage({
       conversationId: data.id,
@@ -86,10 +89,12 @@ export default function Chat() {
     setMessages(_messages)
     setHasMore(!!response.nextCursor)
     setIsFetchMore(false)
+    setIsLoading(false)
     cursorRef.current = response.nextCursor
   }
 
   const _mapMessage = (messages, members) => {
+    if (messages.length === 0) return []
     const _messages = messages.map((m) => {
       const user = members.find((member) => member.id == m.createdBy)
       return {
@@ -103,8 +108,10 @@ export default function Chat() {
   }
 
   const handleOpenThread = async (thread) => {
+    setIsLoadingInThread(true)
     isMobileScreen && setSelectedScreen('thread')
     const replies = await getReplies(thread.id)
+    setIsLoadingInThread(false)
     setThread({
       id: thread.id,
       title: thread.title,
@@ -121,6 +128,7 @@ export default function Chat() {
 
     const nextCursor = cursorRef.current.toString()
     cursorRef.current = null
+    setIsLoading(true)
     const response = await getDirectMessage({
       conversationId: selectedDirectMessage.id,
       cursor: nextCursor,
@@ -130,6 +138,7 @@ export default function Chat() {
     setIsFetchMore(true)
     setMessages([..._messages, ...messages])
     setHasMore(!!response.nextCursor)
+    setIsLoading(false)
     cursorRef.current = response.nextCursor
   }
 
@@ -155,6 +164,7 @@ export default function Chat() {
 
     socket.on(SocketEvents.new_message, (data) => {
       if (data.conversationId) {
+        console.log(memberRef.current, data.createdBy)
         const userInfo = memberRef.current.find(
           (mem) => mem.id == data.createdBy
         )
@@ -215,7 +225,7 @@ export default function Chat() {
             draggable
             className="resize"
             onDrag={handleDrag}
-            onDragEnd={(e) => {}}
+            onDragEnd={(e) => { }}
             onDragStart={(e) => {
               const img = new Image()
               img.src =
@@ -226,6 +236,7 @@ export default function Chat() {
           <div className={`main-chat ${thread ? 'main-open-thread' : ''}`}>
             {selectedDirectMessage && (
               <MainContent
+                isLoading={isLoading}
                 newMessage={newMessage}
                 messages={messages}
                 hasMore={hasMore}
@@ -240,6 +251,7 @@ export default function Chat() {
             <Thread
               thread={thread}
               newReply={newReply}
+              isLoading={isLoadingInThread}
               onCloseThread={() => setThread(null)}
               onSubmit={handleSubmitReply}
             />
@@ -284,6 +296,7 @@ export default function Chat() {
               </div>
               <div className="main-chat">
                 <MainContent
+                  isLoading={isLoading}
                   newMessage={newMessage}
                   messages={messages}
                   hasMore={hasMore}
@@ -323,7 +336,7 @@ export default function Chat() {
     )
   }
   return (
-    <>
+    <SkeletonTheme color="#202020" highlightColor="#444">
       <Head>
         {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
         <meta name="og:title" content="Awesome chat app" />
@@ -333,6 +346,6 @@ export default function Chat() {
         />
       </Head>
       {renderScreen()}
-    </>
+    </SkeletonTheme>
   )
 }

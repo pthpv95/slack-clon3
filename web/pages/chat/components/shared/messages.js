@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import { isMobile } from '../../../../utils'
 import Avatar from './avatar'
 
 const MoreAction = ({ message, handleMoreAction }) => {
@@ -37,7 +39,6 @@ const MoreAction = ({ message, handleMoreAction }) => {
 
 const MessageItem = ({ message, isInThread, handleMoreAction }) => {
   const [isHover, setIsHover] = useState(false)
-
   return (
     <div
       className="message"
@@ -93,6 +94,7 @@ const Messages = ({
   isInThread,
   fetchMore,
   hasMore,
+  isLoading,
   handleMoreAction,
   onFetchMore,
 }) => {
@@ -117,9 +119,23 @@ const Messages = ({
     if (messagesRef.current.scrollTop === 0 || !hasMore) {
       return
     }
-    if (messagesRef.current.scrollTop < 20) {
+
+    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    if (messagesRef.current.scrollTop < 20 && !bottom) {
       onFetchMore()
     }
+  }
+  if (isLoading) {
+    return (
+      <div className="message-list-skeleton">
+        <div className="message-skeleton-avatar" >
+          <Skeleton count={isMobile() ? 10 : 12} style={{ height: 50, marginBottom: 16 }} />
+        </div>
+        <div className="message-skeleton-main">
+          <Skeleton count={isMobile() ? 10 : 12} style={{ height: 50, marginBottom: 16 }} />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -142,7 +158,4 @@ const Messages = ({
   )
 }
 
-export default React.memo(
-  Messages,
-  (prev, next) => prev.messages === next.messages
-)
+export default Messages
