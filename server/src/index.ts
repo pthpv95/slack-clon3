@@ -11,6 +11,7 @@ import auth from './routes/auth'
 import messages from './routes/message'
 import users from './routes/user'
 import conversations from './routes/conversation'
+import healthcheck from './routes/healthcheck'
 import { server, app } from './services/socket'
 declare global {
   namespace Express {
@@ -23,7 +24,10 @@ declare global {
     }
   }
 }
-app.use(cors())
+app.use(cors({
+  origin: process.env.ALLOW_ORIGIN_HOST,
+  credentials: true
+}))
 app.use(bodyParser.json())
 app.use(passport.initialize())
 
@@ -43,6 +47,7 @@ app.use(
   passport.authenticate('jwt', { session: false, authInfo: true }),
   conversations
 )
+app.use('/healthcheck', healthcheck)
 const port = process.env.PORT || 3001
 
 server.listen(port, () => {

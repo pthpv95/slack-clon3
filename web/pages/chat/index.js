@@ -128,7 +128,7 @@ export default function Chat() {
 
     const nextCursor = cursorRef.current.toString()
     cursorRef.current = null
-    setIsLoading(true)
+    // setIsLoading(true)
     const response = await getDirectMessage({
       conversationId: selectedDirectMessage.id,
       cursor: nextCursor,
@@ -138,7 +138,7 @@ export default function Chat() {
     setIsFetchMore(true)
     setMessages([..._messages, ...messages])
     setHasMore(!!response.nextCursor)
-    setIsLoading(false)
+    // setIsLoading(false)
     cursorRef.current = response.nextCursor
   }
 
