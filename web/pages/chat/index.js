@@ -199,7 +199,6 @@ export default function Chat() {
         }
         return m;
       })
-      console.log(updateMessages);
       setMessages(updateMessages)
     }
   }, [newReply])
@@ -352,6 +351,7 @@ export default function Chat() {
     <SkeletonTheme color="#202020" highlightColor="#444">
       <Head>
         {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
       {renderScreen()}
     </SkeletonTheme>

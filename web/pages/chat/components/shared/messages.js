@@ -130,10 +130,10 @@ const Messages = ({
     return (
       <div className="message-list-skeleton">
         <div className="message-skeleton-avatar" >
-          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 16 }} />
+          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 14 }} />
         </div>
         <div className="message-skeleton-main">
-          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 16 }} />
+          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 14 }} />
         </div>
       </div>
     )
