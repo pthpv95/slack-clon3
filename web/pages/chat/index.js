@@ -164,7 +164,7 @@ export default function Chat() {
 
     socket.on(SocketEvents.new_message, (data) => {
       if (data.conversationId) {
-        console.log(memberRef.current, data.createdBy)
+        console.log(data)
         const userInfo = memberRef.current.find(
           (mem) => mem.id == data.createdBy
         )
@@ -190,6 +190,19 @@ export default function Chat() {
       })
     }
   }, [conversations, socketConnected])
+
+  useEffect(() => {
+    if (newReply) {
+      const updateMessages = messages.map(m => {
+        if (m.id === newReply.threadId) {
+          m.replies++;
+        }
+        return m;
+      })
+      console.log(updateMessages);
+      setMessages(updateMessages)
+    }
+  }, [newReply])
 
   const renderScreen = () => {
     if (!selectedScreen) {
@@ -339,11 +352,6 @@ export default function Chat() {
     <SkeletonTheme color="#202020" highlightColor="#444">
       <Head>
         {/* <script async src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" /> */}
-        <meta name="og:title" content="Awesome chat app" />
-        <meta
-          property="og:image"
-          content="http://euro-travel-example.com/thumbnail.jpg"
-        />
       </Head>
       {renderScreen()}
     </SkeletonTheme>

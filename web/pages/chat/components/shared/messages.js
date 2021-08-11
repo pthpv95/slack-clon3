@@ -102,7 +102,7 @@ const Messages = ({
 
   useEffect(() => {
     if (messagesRef && messagesRef.current) {
-      if (!fetchMore) {
+      if (!fetchMore && !isLoading) {
         messagesRef.current.scroll({
           top: messagesRef.current.scrollHeight,
         })
@@ -112,7 +112,7 @@ const Messages = ({
         })
       }
     }
-  }, [fetchMore, hasMore, messages])
+  }, [fetchMore, hasMore, messages, isLoading])
 
   const handleScroll = (e) => {
     e.preventDefault()
@@ -125,14 +125,15 @@ const Messages = ({
       onFetchMore()
     }
   }
+
   if (isLoading) {
     return (
       <div className="message-list-skeleton">
         <div className="message-skeleton-avatar" >
-          <Skeleton count={isMobile() ? 10 : 12} style={{ height: 50, marginBottom: 16 }} />
+          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 16 }} />
         </div>
         <div className="message-skeleton-main">
-          <Skeleton count={isMobile() ? 10 : 12} style={{ height: 50, marginBottom: 16 }} />
+          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 16 }} />
         </div>
       </div>
     )

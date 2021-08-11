@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { isMobile } from '../../../../utils'
 import Input from '../shared/input'
 import Messages from '../shared/messages'
 
@@ -71,7 +72,7 @@ const MainContent = ({
             value={textMessage}
             autoComplete="off"
             ref={inputRef}
-            autoFocus={true}
+            autoFocus={!isMobile()}
             onChange={(e) => {
               setTextMessage(e.target.value)
             }}

@@ -45,7 +45,7 @@ const Thread = ({
       </div>
       {thread?.replies.length > 0 && (
         <div className="thread__num-replies">
-          <span>{thread?.replies.length} replies</span>
+          <span>{messages?.length} replies</span>
         </div>
       )}
       <div className="thread">
