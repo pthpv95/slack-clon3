@@ -5,7 +5,7 @@ name: Deploy BE service
 
 on:
   push:
-    branches: [ master ]
+    branches: [ deploy/backend ]
 
 jobs:
   build:
@@ -20,5 +20,5 @@ jobs:
         port: 22
         script: |
           cd projects/slack-clon3/server
-          git checkout master && git pull
+          git checkout deploy/backend && git pull
           pm2 restart chat-be
