@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Image from 'next/image'
+import Popup from '../../../../shared/components/Popup';
 
 const DirectMessage = ({ conversations, onClick }) => {
   const [showRemoveBtn, setShowRemoveBtn] = useState(null);
   const [selectedContact, setSelectedContact] = useState();
-
+  const [isOpen, setIsOpen] = useState(false)
   return (
     <div className="sidebar-content__direct-message">
       <p className="sidebar-content__direct-message--title">Direct messages</p>
@@ -31,12 +32,23 @@ const DirectMessage = ({ conversations, onClick }) => {
             }
           </div>)
       })}
-      <div className="sidebar-content__direct-message--add-teammate">
+      <div className="sidebar-content__direct-message--add-teammate" onClick={() => {
+        setIsOpen(true)
+      }}>
         <Image src={'/assets/icons/plus.svg'} alt="plus" width={25} height={25} />
         <p>
           Add teammates
         </p>
       </div>
+      <Popup
+        className="custom-popup"
+        open={isOpen}
+        size='sm'
+        onClose={() => {
+          setIsOpen(false)
+        }}>
+        <p>Are you sure</p>
+      </Popup>
     </div>
   );
 };
