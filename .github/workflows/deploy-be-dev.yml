@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev, master ]
 
 jobs:
   build:
@@ -20,3 +20,4 @@ jobs:
         script: |
           cd projects/slack-clon3/server
           ls -al
+          pm2 restart chat-be
