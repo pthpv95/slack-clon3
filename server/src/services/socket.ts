@@ -3,6 +3,7 @@ import { createServer } from 'http'
 // import { createClient } from 'redis'
 import { Server, Socket } from 'socket.io'
 import { SocketActions, SocketEvents } from '../constants'
+import { events, register } from '../helpers/pub-sub';
 import {
   createMessage,
   CreateMessageInput,
@@ -79,6 +80,15 @@ io.on('connection', (socket: Socket) => {
     socket.emit(SocketEvents.stop_typing, data)
   })
 
+
+  // events
+  register(events.ON_ADD_USER_TO_CONVERSATION, (data) => {
+    // Handle notify user added to group
+    console.log(data);
+    socket.join(data.roomId)
+  });
+
+  //
   socket.on('disconnect', () => {
     console.log('User was disconnected!')
   })

@@ -1,9 +1,13 @@
-import { Conversation } from '../models/conversation'
+import { publish, events } from '../helpers/pub-sub'
+import { Conversation, ConversationType } from '../models/conversation'
 import { UserConversation } from '../models/userConversation'
 
 export interface CreateConversationInput {
   title: string
+  type: ConversationType
+  description?: string
   createdBy: string
+  isPrivate: boolean
   memberIds: string[]
 }
 
@@ -23,6 +27,39 @@ const createConversations = async (input: CreateConversationInput) => {
   return conversions
 }
 
+
+const addUserToConversation = async (userId: string, conversationId: string) => {
+  const conversation = await Conversation.findById(conversationId)
+  if (!conversation) {
+    throw new Error('Conversation not found')
+  }
+
+  const userConversation = await UserConversation.findOne({
+    userId,
+  })
+
+  if (!userConversation) {
+    throw new Error('user conversation not found')
+  }
+
+  conversation.set({
+    memberId: [...conversation.memberIds, userId]
+  })
+
+  userConversation.set({
+    conversationIds: [...userConversation.conversationIds, conversationId],
+  })
+
+  await userConversation.save()
+  await conversation.save()
+  publish(events.ON_ADD_USER_TO_CONVERSATION, {
+    userId,
+    roomId: conversationId
+  });
+
+  return;
+}
+
 const getUserConversations = async (id: string) => {
   const userConversations = await UserConversation.findOne({
     userId: id,
@@ -37,4 +74,4 @@ const getUserConversations = async (id: string) => {
   }))
 }
 
-export { createConversations, getUserConversations }
+export { createConversations, getUserConversations, addUserToConversation }

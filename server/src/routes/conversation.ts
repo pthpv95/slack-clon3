@@ -1,6 +1,6 @@
 import express from "express"
 import _ from "lodash"
-import { createConversations, getUserConversations } from "../services/conversation"
+import { createConversations, getUserConversations, addUserToConversation } from "../services/conversation"
 var router = express.Router()
 
 router.get("/", async (req, res) => {
@@ -8,21 +8,25 @@ router.get("/", async (req, res) => {
   res.send(messages)
 })
 
-router.post("/add-user", async (req, res) => {
-  // const messages = await getUserConversations(req.user!.id);
-  res.send({})
+router.post("/add-user/:userId/:conversationId", async (req, res) => {
+  await addUserToConversation(req.params.userId, req.params.conversationId);
+  res.status(200).send({})
 })
 
 router.post("/", async (req, res) => {
   const body: any = _.pick(req.body, [
     "title",
     "createdBy",
+    "type",
+    "isPrivate"
   ])
 
   const message = await createConversations({
     title: body.title,
     createdBy: req.user!.id,
-    memberIds: [req.user!.id]
+    memberIds: [req.user!.id],
+    type: body.type,
+    isPrivate: body.isPrivate
   });
   res.send(message)
 })

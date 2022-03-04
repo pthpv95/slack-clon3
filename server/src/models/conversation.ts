@@ -7,6 +7,11 @@ interface IConversation extends Document {
   createdAt: Date
 }
 
+export enum ConversationType {
+  DirectMessage,
+  Channel,
+}
+
 const ConversationSchema = new Schema({
   title: {
     type: String,
@@ -27,7 +32,7 @@ const ConversationSchema = new Schema({
   type: {
     type: Schema.Types.Number,
     required: true,
-    default: 0 // private: 0 | group: 1
+    default: ConversationType.DirectMessage
   },
 }, {
   timestamps: true,
