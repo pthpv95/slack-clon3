@@ -16,4 +16,16 @@ const getReplies = (threadId) => {
   return fetchWrapper(`/messages/thread/${threadId}`, 'GET')
 }
 
-export { getUserConversation, getDirectMessage, getReplies }
+const addUserToGroup = (userId, conversationId) => {
+  return fetchWrapper(`/conversations/add-user/${userId}/${conversationId}`, 'POST', {
+    conversationId,
+    limit,
+    cursor,
+  })
+}
+
+const createConversation = (payload) => {
+  return fetchWrapper(`/conversations`, 'POST', payload)
+}
+
+export { getUserConversation, getDirectMessage, getReplies, addUserToGroup, createConversation }

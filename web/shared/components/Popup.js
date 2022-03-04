@@ -1,26 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useRef } from 'react'
+import useOnClickOutside from '../../hooks/shared/useClickOutside'
 
-const Popup = ({ open, onClose, children, className, size }) => {
-  const [isOpen, setIsOpen] = useState(open)
-
-  useEffect(() => {
-    setIsOpen(open)
-  }, [open])
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-      return
-    }
-    setIsOpen(false)
-  }
+const Popup = ({ open, onClose, children, className, size = 'sm', closeOutFocus = false }) => {
+  const ref = useRef()
+  useOnClickOutside(ref, () => {
+    onClose()
+  })
 
   return (
-    isOpen &&
     <div className='popup'>
-      <div className={`popup__inner popup__inner--size-${size} ${className ?? ''}`}>
+      <div className={`popup__inner popup__inner--size-${size} ${className ?? ''}`} ref={ref}>
         <div className="popup__inner--close-btn">
-          <button onClick={handleClose}>X</button>
+          <button onClick={onClose}>X</button>
         </div>
         <div className="popup__inner--main">
           {children}

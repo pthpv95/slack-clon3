@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Image from 'next/image'
 import Popup from '../../../../shared/components/Popup';
+import useModal from '../../../../hooks/shared/useModal';
 
 const DirectMessage = ({ conversations, onClick }) => {
   const [showRemoveBtn, setShowRemoveBtn] = useState(null);
   const [selectedContact, setSelectedContact] = useState();
-  const [isOpen, setIsOpen] = useState(false)
+  const { isOpen, onModalClose, onModalOpen } = useModal()
+
   return (
     <div className="sidebar-content__direct-message">
       <p className="sidebar-content__direct-message--title">Direct messages</p>
@@ -32,24 +34,27 @@ const DirectMessage = ({ conversations, onClick }) => {
             }
           </div>)
       })}
-      <div className="sidebar-content__direct-message--add-teammate" onClick={() => {
-        setIsOpen(true)
-      }}>
+      <div className="sidebar-content__direct-message--add-teammate" onClick={onModalOpen}>
         <Image src={'/assets/icons/plus.svg'} alt="plus" width={25} height={25} />
         <p>
           Add teammates
         </p>
       </div>
-      <Popup
-        className="custom-popup"
-        open={isOpen}
-        size='sm'
-        onClose={() => {
-          setIsOpen(false)
-        }}>
-        <p>Are you sure</p>
-      </Popup>
-    </div>
+      {isOpen &&
+        <Popup
+          className="custom-popup"
+          open
+          size='xs'
+          onClose={onModalClose}>
+          <div>
+            <h3>Invite people to myspace </h3>
+            <h4>To: </h4>
+            <input placeholder="name@gmail.com" />
+            <button>Send</button>
+          </div>
+        </Popup>
+      }
+    </div >
   );
 };
 

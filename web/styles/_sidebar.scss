@@ -13,18 +13,22 @@
   overflow: auto;
   overflow-y: hidden;
   grid-template-rows: 60% 40%;
+
   &::-webkit-scrollbar {
     display: none;
   }
+
   &__direct-message {
     display: flex;
     flex-direction: column;
+
     &--title {
       color: $color-text-primary;
       font-size: 1.6rem;
       margin-left: 2rem;
       margin-bottom: 2rem;
     }
+
     &--add-teammate {
       color: $color-text-primary;
       padding-left: 1.5rem;
@@ -32,27 +36,33 @@
       height: 3.5rem;
       display: flex;
       align-items: center;
+
       p {
         margin-left: 1rem;
       }
+
       &:hover {
         background-color: $color-hover-contact;
         cursor: pointer;
       }
     }
+
     &--remove {
       margin-right: 1rem;
     }
+
     &--user {
       display: flex;
       align-items: center;
       padding-left: 2rem;
       height: 3.5rem;
+
       img {
         width: 2rem;
         height: 2rem;
         border-radius: 30%;
       }
+
       p {
         margin-left: 1rem;
         font-size: 1.4rem;
@@ -60,6 +70,7 @@
         align-self: center;
         margin-right: auto;
       }
+
       &:hover {
         background-color: $color-hover-contact;
         cursor: pointer;
@@ -80,10 +91,12 @@
       font-size: 1.6rem;
       padding: 2rem;
     }
+
     &--item {
       display: flex;
       padding-left: 1rem;
       padding-bottom: 1.5rem;
+
       p {
         margin-left: 1rem;
         font-size: 1.4rem;
@@ -91,5 +104,27 @@
         align-self: center;
       }
     }
+
+    &--add {
+      color: $color-text-primary;
+      padding-left: 1.5rem;
+      font-size: 1.4rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+
+      p {
+        margin-left: 1rem;
+      }
+
+      &:hover {
+        background-color: $color-hover-contact;
+        cursor: pointer;
+      }
+    }
+
+    // &--remove {
+    //   margin-right: 1rem;
+    // }
   }
 }

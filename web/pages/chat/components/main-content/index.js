@@ -23,9 +23,9 @@ const MainContent = ({
       if (_messages.some((n) => n.id === newMessage.id)) {
         return
       }
-      setMessages(newList)
+      setMessages(prev => [newList, ...prev])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [newMessage])
 
   useEffect(() => {
