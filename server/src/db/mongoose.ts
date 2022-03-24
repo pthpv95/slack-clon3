@@ -1,13 +1,11 @@
 import mongoose from 'mongoose'
 mongoose.Promise = global.Promise
 // mongoose.set("debug", true)
-const url = `mongodb://${process.env.MONGODB_HOST}:27017`
+const url = process.env.MONGODB_URL!;
 mongoose.connect(url, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
-  user: process.env.MONGODB_USER,
-  pass: process.env.MONGODB_PASS,
-  dbName: 'chatapp',
+  dbName: 'slack-db'
 })
 
 var db = mongoose.connection

@@ -1,5 +1,5 @@
 import jwtSecret from './jwtConfig'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { User } from '../models/user'
 import { Identity } from '../models/identity'
 import passport from 'passport'

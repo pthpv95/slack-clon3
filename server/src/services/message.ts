@@ -167,9 +167,6 @@ const readMessage = async (input: IReadMessage) => {
   await ReadReceipt.findOneAndDelete(
     {
       conversationId: input.conversationId,
-    },
-    (err, doc) => {
-      console.log(err, doc)
     }
   )
 

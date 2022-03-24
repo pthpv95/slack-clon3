@@ -1,6 +1,6 @@
 import { Identity } from '../models/identity'
 import { User } from '../models/user'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { IRegisterUserInput } from '../types/user/IRegisterUserInput'
 import { ErrorDTO } from '../types/error/error'
 import passport from 'passport'

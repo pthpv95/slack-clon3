@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose"
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export interface IIdentity extends Document {
   username: string
@@ -22,7 +22,7 @@ const IdentitySchema = new Schema({
   }
 })
 
-IdentitySchema.pre('save', function(next){
+IdentitySchema.pre('save', function (next) {
   var identity: any = this
   if (identity.isModified("password")) {
     bcrypt.genSalt(10, (_err: any, salt: any) => {
@@ -31,7 +31,7 @@ IdentitySchema.pre('save', function(next){
         next()
       })
     })
-  }else{
+  } else {
     next()
   }
 })

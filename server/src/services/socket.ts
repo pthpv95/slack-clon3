@@ -14,10 +14,10 @@ import { IReadMessage } from '../types/message/IReadMessage'
 
 const app = require('express')()
 const server = createServer(app)
-console.log(process.env.SOCKETIO_ALLOW_ORIGIN)
+console.log(process.env.ALLOW_ORIGIN_HOST)
 const io = new Server(server, {
   cors: {
-    origin: process.env.SOCKETIO_ALLOW_ORIGIN,
+    origin: process.env.ALLOW_ORIGIN_HOST,
     methods: ['GET', 'POST'],
     credentials: true,
   },
