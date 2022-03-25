@@ -19,11 +19,7 @@ const MainContent = ({
 
   useEffect(() => {
     if (newMessage) {
-      const newList = [..._messages, newMessage]
-      if (_messages.some((n) => n.id === newMessage.id)) {
-        return
-      }
-      setMessages(prev => [newList, ...prev])
+      setMessages(prev => [...prev, newMessage])
     }
     
   }, [newMessage])

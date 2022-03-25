@@ -192,14 +192,18 @@ export default function Chat() {
 
   useEffect(() => {
     if (newReply) {
+      return
+    }
+    setMessages(messages => {
       const updateMessages = messages.map(m => {
         if (m.id === newReply.threadId) {
           m.replies++;
         }
         return m;
       })
-      setMessages(updateMessages)
-    }
+      return updateMessages
+    })
+
   }, [newReply])
 
   const renderScreen = () => {

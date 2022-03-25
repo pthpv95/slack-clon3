@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { fetchWrapper } from '../hooks/fetchWrapper'
+import { Loading } from '@nextui-org/react';
 
 export default function Layout() {
   const router = useRouter()
@@ -17,7 +18,7 @@ export default function Layout() {
         router.push(redirectTo)
       }
     })
-  }, [])
+  }, [router])
 
-  return <div>{isLoading ? '...' : ''}</div>
+  return isLoading && <Loading />
 }

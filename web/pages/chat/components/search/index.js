@@ -1,7 +1,8 @@
-import Image from 'next/image'
+import { Avatar, Button } from '@nextui-org/react'
 import { useRouter } from 'next/router'
 import React, { useRef, useState } from 'react'
 import useUser from '../../../../hooks/auth/useUser'
+import useQueryContacts from '../../../../hooks/chat/useQueryContacts'
 import useOnClickOutside from '../../../../hooks/shared/useClickOutside'
 
 const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
@@ -10,7 +11,11 @@ const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
   const [isModalOpen, setModalOpen] = useState(false)
   useOnClickOutside(ref, () => setModalOpen(false))
 
+  const { data: contacts } = useQueryContacts()
+  const [searchResult, setSearchResult] = useState(contacts)
+
   const router = useRouter()
+
   if (isError) {
     router.push('/login')
   }
@@ -21,6 +26,12 @@ const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
   if (!data) {
     return null
   }
+  console.log('contacts', contacts);
+  const handleChange = (e) => {
+    let searchTerm = e.target.value.toLowerCase();
+    const searchContacts = contacts.filter(c => c.firstName.toLowerCase().includes(searchTerm) || c.lastName.toLowerCase().includes(searchTerm))
+    console.log('searchContacts', searchContacts);
+  }
 
   return (
     <>
@@ -28,27 +39,23 @@ const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
         <input
           className="search__box--input"
           placeholder="Search anything ... "
+          onChange={handleChange}
         />
       </div>
       <div className="search__user-info">
-        <div onClick={() => setModalOpen(true)}>
-          <Image
-            src={data.avatarUrl}
-            alt={data.firstName}
-            width={30}
-            height={30}
-          />
-        </div>
+        <Avatar squared src={data.avatarUrl} onClick={() => setModalOpen(true)} />
         {isModalOpen && (
           <div className="search__user-info--toggle-data" ref={ref}>
-            <p
+            <Button
+              auto
+              color='gradient'
               onClick={() => {
                 localStorage.clear()
                 router.push('/login')
               }}
             >
               Sign out
-            </p>
+            </Button>
           </div>
         )}
       </div>

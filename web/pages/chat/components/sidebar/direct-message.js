@@ -1,12 +1,12 @@
+import { Button, Modal, Textarea, useModal } from '@nextui-org/react';
+import Image from 'next/image';
 import React, { useState } from 'react';
-import Image from 'next/image'
-import Popup from '../../../../shared/components/Popup';
-import useModal from '../../../../hooks/shared/useModal';
 
 const DirectMessage = ({ conversations, onClick }) => {
   const [showRemoveBtn, setShowRemoveBtn] = useState(null);
   const [selectedContact, setSelectedContact] = useState();
-  const { isOpen, onModalClose, onModalOpen } = useModal()
+  const { visible, setVisible } = useModal()
+  const closeHandler = () => setVisible(false)
 
   return (
     <div className="sidebar-content__direct-message">
@@ -34,26 +34,38 @@ const DirectMessage = ({ conversations, onClick }) => {
             }
           </div>)
       })}
-      <div className="sidebar-content__direct-message--add-teammate" onClick={onModalOpen}>
+      <div className="sidebar-content__direct-message--add-teammate" onClick={() => setVisible(true)}>
         <Image src={'/assets/icons/plus.svg'} alt="plus" width={25} height={25} />
         <p>
           Add teammates
         </p>
       </div>
-      {isOpen &&
-        <Popup
-          className="custom-popup"
-          open
-          size='xs'
-          onClose={onModalClose}>
-          <div>
-            <h3>Invite people to myspace </h3>
-            <h4>To: </h4>
-            <input placeholder="name@gmail.com" />
-            <button>Send</button>
-          </div>
-        </Popup>
-      }
+      <Modal
+        closeButton
+        aria-labelledby="add teammate"
+        open={visible}
+        onClose={closeHandler}
+        className='custom-modal'
+      >
+        <Modal.Header css={{ fontSize: '1.5rem' }}>
+          Invite people to your work space
+        </Modal.Header>
+        <Modal.Body>
+          <Textarea
+            bordered
+            fullWidth
+            color="primary"
+            size="lg"
+            placeholder="Email"
+            autoFocus
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button auto onClick={closeHandler}>
+            Send
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div >
   );
 };
