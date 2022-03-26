@@ -3,16 +3,18 @@ dotenv.config()
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
+import 'express-async-errors';
 import passport from 'passport'
 import './config/passport'
 import './db/mongoose'
-import { User } from './models/user'
 import auth from './routes/auth'
 import messages from './routes/message'
 import users from './routes/user'
 import conversations from './routes/conversation'
 import healthcheck from './routes/healthcheck'
 import { server, app } from './services/socket'
+import { errorHandler } from './middlewares/error-handler'
+
 declare global {
   namespace Express {
     interface User {
@@ -48,6 +50,7 @@ app.use(
   conversations
 )
 app.use('/healthcheck', healthcheck)
+app.use(errorHandler)
 const port = process.env.PORT || 3001
 
 server.listen(port, () => {

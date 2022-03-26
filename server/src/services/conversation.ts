@@ -14,6 +14,8 @@ export interface CreateConversationInput {
 const createConversations = async (input: CreateConversationInput) => {
   const conversations = new Conversation(input)
   const conversions = await conversations.save()
+
+  // store conversations of user
   const userConversation = await UserConversation.findOne({
     userId: input.createdBy,
   })

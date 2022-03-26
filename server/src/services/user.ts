@@ -1,7 +1,6 @@
-import { asyncForEach } from '../helpers'
+import { NotFoundError } from '../errors/not-found-error'
 import { Contact } from '../models/contact'
-import { Conversation } from '../models/conversation'
-import { IUser, User } from '../models/user'
+import { User } from '../models/user'
 
 export class UserInfo {
   constructor(
@@ -58,7 +57,7 @@ const getUser = async (id: string) => {
     )
   }
 
-  throw new Error('USER_NOT_FOUND')
+  throw new NotFoundError('USER_NOT_FOUND')
 }
 
 const getUserByIdentityId = async (identityId: string) => {
@@ -78,37 +77,22 @@ const getUserByIdentityId = async (identityId: string) => {
 }
 
 const getUserContacts = async (userId: string) => {
-  var userContacts = await Contact.findOne({ userId })
-  var contacts = await User.find({
+  let userContacts = await Contact.findOne({ userId })
+  let contacts = await User.find({
     _id: { $in: userContacts?.contacts },
   })
-
-  var contactsInfo: ContactInfo[] = []
-  await asyncForEach(contacts, async (contact: IUser) => {
-    const members = [contact.id, userId]
-    var conversation = await Conversation.findOne({
-      memberIds: { $in: members },
-    })
-
-    if (!conversation?.memberIds.some((m: string) => m === contact.id)) {
-      return false
-    } else {
-      contactsInfo.push(
-        new ContactInfo(
-          contact.id,
-          contact.firstName,
-          contact.lastName,
-          contact.email,
-          contact.avatarUrl,
-          conversation?._id
-        )
-      )
-    }
+  return contacts.map(contact => {
+    return new ContactInfo(
+      contact.id,
+      contact.firstName,
+      contact.lastName,
+      contact.email,
+      contact.avatarUrl,
+      ''
+    )
   })
-
-  return contactsInfo
 }
 
-const searchContacts = (userId: string) => {}
+const searchContacts = (userId: string) => { }
 
 export { getUser, getUserContacts, getUserByIdentityId, searchContacts }

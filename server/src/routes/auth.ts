@@ -49,7 +49,7 @@ router.post('/login', async (req, res, next) => {
               username: identity.username,
               id: user!.id,
             },
-            jwtSecret.secret,
+            jwtSecret.secret!,
             {
               expiresIn: '100days',
             }

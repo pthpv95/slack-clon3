@@ -1,25 +1,27 @@
 import express, { Request } from "express";
-import { getUser, getUserContacts, getUserByIdentityId } from "../services/user";
+import { validateMongoId } from "../helpers";
+import { getUser, getUserContacts } from "../services/user";
 
-var router = express.Router()
+let router = express.Router()
 router.get("/me", async (req: Request, res) => {
   try {
-    const user = await getUser(req.user!.id)
+    let user = await getUser(req.user!.id)
     res.send(user)
   } catch (error) {
-    res.status(404).send(error);  
+    res.status(404).send(error);
   }
 })
 
-router.get("/:userId", async (req, res) => {
-  const userId = req.params.userId
-  var user = await getUser(userId) || []
-  res.send(user)
+router.get("/contacts", async (req, res) => {
+  let contacts = (await getUserContacts(req.user!.id)) || []
+  res.send(contacts)
 })
 
-router.get("/contacts", async (req, res) => {
-  var contacts = (await getUserContacts(req.user!.id)) || []
-  res.send(contacts)
+router.get("/:userId", async (req, res, next) => {
+  let userId = req.params.userId
+  validateMongoId(userId);
+  let user = await getUser(userId) || []
+  res.send(user)
 })
 
 export default router
