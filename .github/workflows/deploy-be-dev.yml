@@ -5,20 +5,20 @@ name: Deploy BE service
 
 on:
   push:
-    branches: [ master ]
+    branches: [disable_for_now]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote ssh commands using key
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
-        port: 22
-        script: |
-          cd projects/slack-clon3/server
-          git checkout master && git pull
-          pm2 restart chat-be
+      - name: executing remote ssh commands using key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: |
+            cd projects/slack-clon3/server
+            git checkout master && git pull
+            pm2 restart chat-be
