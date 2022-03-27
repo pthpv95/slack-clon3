@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import express from 'express'
+import 'express'
 import 'express-async-errors';
 import passport from 'passport'
 import './config/passport'

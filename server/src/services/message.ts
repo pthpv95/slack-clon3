@@ -1,11 +1,14 @@
 import _ from 'lodash'
 import { NotFoundError } from '../errors/not-found-error'
 import { Conversation } from '../models/conversation'
-import { IMessage, IReaction, Message } from '../models/message'
+import { IMessage, Message } from '../models/message'
 import { ReadReceipt } from '../models/readReceipt'
 import { User } from '../models/user'
-import { IMessageReaction } from '../types/message/IReactMessage'
 import { IReadMessage } from '../types/message/IReadMessage'
+import {
+  IMessageReaction,
+  IRemoveMessageReaction
+} from '../types/message/MessageReaction'
 import { UserInfo } from './user'
 
 class ConversationDTO {
@@ -47,7 +50,7 @@ class MessageDTO {
     createdBy: string,
     timestamp: Date,
     reactions: ReactionDTO[],
-    replies?: number,
+    replies?: number
   ) {
     this.id = id
     this.text = text
@@ -82,85 +85,83 @@ export interface CreateMessageInThreadInput extends CreateMessageInput {
 }
 
 const getDirectMessage = async (
-  userId: string,
   conversationId: string,
   cursor?: number,
-  limit: number = 3
+  limit: number = 5
 ) => {
   let conversation = await Conversation.findById(conversationId)
-  if (conversation) {
-    let predicate: any = {
-      conversationId,
-      threadId: null,
+  if (!conversation) {
+    throw new NotFoundError('Conversation not found')
+  }
+  let predicate: any = {
+    conversationId,
+    threadId: null,
+  }
+  if (cursor) {
+    predicate = {
+      ...predicate,
+      _id: { $lt: cursor },
     }
-    if (cursor) {
-      predicate = {
-        ...predicate,
-        _id: { $lt: cursor },
-      }
+  }
+
+  const queryMembers = await User.find({
+    _id: { $in: conversation.memberIds },
+  })
+
+  const members: UserInfo[] = queryMembers.map((item) => {
+    return new UserInfo(
+      item.id,
+      item.firstName,
+      item.lastName,
+      item.email,
+      item.avatarUrl
+    )
+  })
+
+  const messages = await Message.find({ ...predicate })
+    .sort({ _id: -1 })
+    .limit(limit)
+
+  let nextCursor: any = null
+  if (messages) {
+    if (messages.length === limit) {
+      nextCursor = _.last(messages)?.id
     }
 
-    const queryMembers = await User.find({
-      _id: { $in: conversation.memberIds },
-    })
-
-    const members: UserInfo[] = queryMembers.map((item) => {
-      return new UserInfo(
-        item.id,
-        item.firstName,
-        item.lastName,
-        item.email,
-        item.avatarUrl
-      )
-    })
-
-    const messages = await Message.find({ ...predicate })
-      .sort({ _id: -1 })
-      .limit(limit)
-
-    let nextCursor: any = null
-    if (messages) {
-      if (messages.length === limit) {
-        nextCursor = _.last(messages)?.id
-      }
-
-      const messagesDTO = await Promise.all(
-        _.map(messages, async (message) => {
-          const replies = await Message.countDocuments({
-            threadId: message.id,
-            conversationId,
-          })
-          return new MessageDTO(
-            message.id,
-            message.text,
-            message.attachmentUrl,
-            message.type,
-            message.createdBy,
-            message.createdAt,
-            message.reactions.map(reaction => reaction.toObject()) || [],
-            replies
-          )
+    const messagesDTO = await Promise.all(
+      _.map(messages, async (message) => {
+        const replies = await Message.countDocuments({
+          threadId: message.id,
+          conversationId,
         })
-      )
-      return new ConversationDTO(
-        conversation.id,
-        conversation.title,
-        _.orderBy(messagesDTO, (m) => m.timestamp),
-        nextCursor,
-        members
-      )
-    }
-
+        return new MessageDTO(
+          message.id,
+          message.text,
+          message.attachmentUrl,
+          message.type,
+          message.createdBy,
+          message.createdAt,
+          message.reactions.map((reaction) => reaction.toObject()) || [],
+          replies
+        )
+      })
+    )
     return new ConversationDTO(
       conversation.id,
       conversation.title,
-      [],
+      _.orderBy(messagesDTO, (m) => m.timestamp),
       nextCursor,
       members
     )
   }
 
-  throw new Error('Conversation not found')
+  return new ConversationDTO(
+    conversation.id,
+    conversation.title,
+    [],
+    nextCursor,
+    members
+  )
 }
 
 const getReplies = async (threadId: string) => {
@@ -179,11 +180,9 @@ const getReplies = async (threadId: string) => {
 }
 
 const readMessage = async (input: IReadMessage) => {
-  await ReadReceipt.findOneAndDelete(
-    {
-      conversationId: input.conversationId,
-    }
-  )
+  await ReadReceipt.findOneAndDelete({
+    conversationId: input.conversationId,
+  })
 
   const readReceipt = new ReadReceipt({
     conversationId: input.conversationId,
@@ -221,41 +220,93 @@ let updateMessageReaction = async (input: IMessageReaction) => {
     throw new NotFoundError('Message not found')
   }
 
-
   if (!message.reactions?.length) {
     await message.updateOne({
-      reactions: [{
-        by: [input.by],
-        name: input.name,
-        symbol: input.symbol
-      }]
-    });
+      reactions: [
+        {
+          by: [input.by],
+          name: input.name,
+          symbol: input.symbol,
+        },
+      ],
+    })
   } else {
-    let isReactingOnExistingOne = message.reactions.some(reaction => reaction.name === input.name);
+    let isReactingOnExistingOne = message.reactions.some(
+      (reaction) => reaction.name === input.name
+    )
     if (isReactingOnExistingOne) {
-      let existingReaction = message.reactions.find(reaction => reaction.name === input.name);
+      let existingReaction = message.reactions.find(
+        (reaction) => reaction.name === input.name
+      )
       if (existingReaction) {
         existingReaction.by = [...existingReaction.by, input.by]
-        await message.save();
+        await message.save()
       }
     } else {
       await message.updateOne({
-        reactions: [...message.reactions, {
-          by: [input.by],
-          name: input.name,
-          symbol: input.symbol
-        }]
+        reactions: [
+          ...message.reactions,
+          {
+            by: [input.by],
+            name: input.name,
+            symbol: input.symbol,
+          },
+        ],
       })
     }
   }
 
-  let updatedMessage = await Message.findOne({ _id: input.messageId }, { reactions: 1 })
+  let updatedMessage = await Message.findOne(
+    { _id: input.messageId },
+    { reactions: 1 }
+  )
 
   return {
     ...input,
-    reactions: updatedMessage?.reactions.map(reaction => reaction.toObject()),
-    conversationId: message.conversationId
+    reactions: updatedMessage?.reactions.map((reaction) => reaction.toObject()),
+    conversationId: message.conversationId,
   }
+}
+
+let removeMessageReaction = async (input: IRemoveMessageReaction) => {
+  let message = await Message.findOne({ _id: input.messageId })
+  if (!message) {
+    throw new NotFoundError('Message not found')
+  }
+
+  let reaction = message.reactions.find((r) => r.id === input.id)
+  let res: {
+    conversationId: string
+    messageId: string
+    reactions: ReactionDTO[]
+  } = {
+    conversationId: input.conversationId,
+    messageId: input.messageId,
+    reactions: [],
+  }
+
+
+  if (!reaction) {
+    console.error('reaction not found');
+    return;
+  }
+
+  let updatedReaction = reaction.by.filter((item) => item !== input.by)
+  if (!updatedReaction.length) {
+    message.reactions = message.reactions.filter(
+      (reaction) => reaction.id !== input.id
+    )
+  } else {
+    reaction.by = updatedReaction
+  }
+
+  let updatedDoc = await message.save()
+  res = {
+    ...res,
+    reactions: updatedDoc.reactions.map((reaction) => reaction.toObject()),
+  }
+
+  return res
 }
 
 export {
@@ -264,5 +315,6 @@ export {
   createConversation,
   readMessage,
   getReplies,
-  updateMessageReaction
+  updateMessageReaction,
+  removeMessageReaction,
 }

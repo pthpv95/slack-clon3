@@ -146,6 +146,15 @@ export default function Chat() {
     })
   }
 
+  const handleRemoveReaction = (reaction) => {
+    socket.emit(SocketActions.remove_reaction, {
+      id: reaction.id,
+      messageId: reaction.messageId,
+      conversationId: currentConversationIdRef.current,
+      by: user.id,
+    })
+  }
+
   const updateNumberRepliesOfMessage = useCallback((newReply) => {
     setMessages(messages => {
       const updateMessages = messages.map(m => {
@@ -163,6 +172,17 @@ export default function Chat() {
       return messages.map(message => {
         if (message.id === newReaction.messageId) {
           message.reactions = newReaction.reactions
+        }
+        return message;
+      })
+    })
+  }, [])
+
+  const updateMessageReactionRemoved = useCallback(data => {
+    setMessages(messages => {
+      return messages.map(message => {
+        if (message.id === data.messageId) {
+          message.reactions = data.reactions
         }
         return message;
       })
@@ -209,14 +229,21 @@ export default function Chat() {
 
     socket.on(SocketEvents.message_reacted, (newReaction) => {
       console.log('message reaction', newReaction);
-
       // Do nothing when new reaction comes from other conversation
       if (newReaction.conversationId !== currentConversationIdRef.current) {
         return;
       }
       updateMessageReactions(newReaction);
     })
-  }, [isMobileScreen, updateMessageReactions, updateNumberRepliesOfMessage])
+
+    socket.on(SocketEvents.reaction_removed, (data) => {
+      console.log('reaction removed', data);
+      if (data.conversationId !== currentConversationIdRef.current) {
+        return;
+      }
+      updateMessageReactionRemoved(data);
+    })
+  }, [isMobileScreen, updateMessageReactionRemoved, updateMessageReactions, updateNumberRepliesOfMessage])
 
   useEffect(() => {
     if (conversations && socketConnected) {
@@ -280,6 +307,7 @@ export default function Chat() {
                 onOpenThread={handleOpenThread}
                 onFetchMore={handleFetchMore}
                 onReactMessage={handleReactMessage}
+                onRemoveReaction={handleRemoveReaction}
               />
             )}
           </div>
@@ -340,6 +368,8 @@ export default function Chat() {
                   onSendMessage={handleSendMessage}
                   onOpenThread={handleOpenThread}
                   onFetchMore={handleFetchMore}
+                  onReactMessage={handleReactMessage}
+                  onRemoveReaction={handleRemoveReaction}
                 />
               </div>
             </>

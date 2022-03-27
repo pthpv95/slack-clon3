@@ -1,52 +1,117 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react'
+import { Tooltip } from '@nextui-org/react'
+import React, { useEffect, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
+import useUser from '../../../../hooks/auth/useUser'
 import { isMobile } from '../../../../utils'
 import Avatar from './avatar'
 
-const MoreAction = ({ message, handleMoreAction }) => {
-  const actions = [
+const MoreAction = ({ onReactMessage, onReplyMessage }) => {
+  const reactions = [
     {
-      type: 'like',
-      text: '👍',
+      name: 'like',
+      symbol: '👍',
     },
     {
-      type: 'complete',
-      text: '✅',
+      name: 'complete',
+      symbol: '✅',
     },
     {
-      type: 'look',
-      text: '👀',
-    },
-    {
-      type: 'reply',
-      text: 'Reply',
+      name: 'look',
+      symbol: '👀',
     },
   ]
+
   return (
     <div className="message__more-actions">
-      {actions.map((action) => {
+      {reactions.map((reaction) => {
         return (
           <div
-            key={action.type}
+            key={reaction.name}
             className="message__more-actions--item"
             onClick={(e) => {
-              handleMoreAction({ ...action, messageId: message.id })
+              onReactMessage(reaction)
             }}
           >
-            {action.text}
+            {reaction.symbol}
           </div>
         )
       })}
+      <div className="message__more-actions--item" onClick={onReplyMessage}>
+        Reply
+      </div>
     </div>
   )
 }
 
-const MessageItem = ({ message, isInThread, handleMoreAction }) => {
-  const [isHover, setIsHover] = useState(false)
+const ReactionDisplay = ({ reaction, showTooltip }) => {
+  let reactionDisplay = reaction.symbol + ' ' + reaction.by.length
+  return showTooltip ? (
+    <Tooltip
+      hideArrow
+      css={{
+        height: 80,
+        width: 200,
+        backgroundColor: '$black',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        '& > div': {
+          color: '#fff',
+          fontSize: 12,
+          padding: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 5,
+          textAlign: 'center',
+          '& > div > p': {
+            marginTop: 7,
+          },
+        },
+      }}
+      content={
+        <div>
+          <span>{reaction.symbol}</span>
+          <p>You (click to remove) reacted with :{reaction.name}</p>
+        </div>
+      }
+    >
+      {reactionDisplay}
+    </Tooltip>
+  ) : (
+    reactionDisplay
+  )
+}
 
-  const handleClickReaction = (reaction) => {
-    console.log('reaction', reaction);
+const MessageItem = ({
+  message,
+  isInThread,
+  onReactMessage,
+  onReplyMessage,
+  onRemoveReaction,
+}) => {
+  const [isHover, setIsHover] = useState(false)
+  const { data: user } = useUser()
+
+  const handleRemoveReaction = (reaction) => {
+    onRemoveReaction({ ...reaction, messageId: message.id })
   }
+
+  const handleReactMessage = (reaction) => {
+    const existingReaction = message.reactions.find(
+      (r) => r.name === reaction.name
+    )
+    if (existingReaction) {
+      onRemoveReaction({ ...existingReaction, messageId: message.id })
+    } else {
+      onReactMessage({ ...reaction, messageId: message.id })
+    }
+  }
+
+  const handleReplyMessage = () => {
+    onReplyMessage(message.id)
+  }
+
   return (
     <div
       className="message"
@@ -56,6 +121,8 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
       onMouseLeave={() => {
         setIsHover(false)
       }}
+      onTouchStart={() => setIsHover(true)}
+      onTouchEnd={() => setIsHover(false)}
     >
       <Avatar src={message.avatarUrl} />
       <div className="message__content">
@@ -65,14 +132,23 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
             <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
           )}
         </p>
-        <p>{message.text}</p>
+        <p className='message__content--message'>{message.text}</p>
         {!isInThread && (
           <div className="message__content--reactions">
             {message.reactions &&
               message.reactions.map((reaction) => {
+                let showTooltip = reaction.by.some((item) => user.id === item)
                 return (
-                  <div key={`reaction_${reaction.id}`} onClick={() => handleClickReaction(reaction)}>
-                    {reaction.symbol} {reaction.by.length}
+                  <div
+                    key={`reaction_${reaction.id}`}
+                    onClick={() =>
+                      showTooltip && handleRemoveReaction(reaction)
+                    }
+                  >
+                    <ReactionDisplay
+                      showTooltip={showTooltip}
+                      reaction={reaction}
+                    />
                   </div>
                 )
               })}
@@ -81,9 +157,7 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
         {message.replies > 0 && (
           <div className="message__content--number-replies">
             <p
-              onClick={(e) => {
-                handleMoreAction({ type: 'reply', messageId: message.id })
-              }}
+              onClick={handleReplyMessage}
             >
               {message.replies} {message.replies > 1 ? 'replies' : 'reply'}
             </p>
@@ -91,7 +165,11 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
         )}
       </div>
       {isHover && !isInThread && (
-        <MoreAction message={message} handleMoreAction={handleMoreAction} />
+        <MoreAction
+          message={message}
+          onReactMessage={handleReactMessage}
+          onReplyMessage={handleReplyMessage}
+        />
       )}
     </div>
   )
@@ -103,7 +181,9 @@ const Messages = ({
   fetchMore,
   hasMore,
   isLoading,
-  handleMoreAction,
+  onReactMessage,
+  onReplyMessage,
+  onRemoveReaction,
   onFetchMore,
 }) => {
   const messagesRef = useRef()
@@ -128,7 +208,8 @@ const Messages = ({
       return
     }
 
-    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    const bottom =
+      e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight
     if (messagesRef.current.scrollTop < 20 && !bottom) {
       onFetchMore()
     }
@@ -137,11 +218,17 @@ const Messages = ({
   if (isLoading) {
     return (
       <div className="message-list-skeleton">
-        <div className="message-skeleton-avatar" >
-          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 14 }} />
+        <div className="message-skeleton-avatar">
+          <Skeleton
+            count={isMobile() ? 10 : 11}
+            style={{ height: 50, marginBottom: 14 }}
+          />
         </div>
         <div className="message-skeleton-main">
-          <Skeleton count={isMobile() ? 10 : 11} style={{ height: 50, marginBottom: 14 }} />
+          <Skeleton
+            count={isMobile() ? 10 : 11}
+            style={{ height: 50, marginBottom: 14 }}
+          />
         </div>
       </div>
     )
@@ -157,7 +244,9 @@ const Messages = ({
                 key={index}
                 message={item}
                 isInThread={isInThread}
-                handleMoreAction={handleMoreAction}
+                onReactMessage={onReactMessage}
+                onReplyMessage={onReplyMessage}
+                onRemoveReaction={onRemoveReaction}
               />
               {index !== messages.length - 1 && <div className="line-break" />}
             </div>

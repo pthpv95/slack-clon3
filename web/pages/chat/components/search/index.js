@@ -5,7 +5,7 @@ import useUser from '../../../../hooks/auth/useUser'
 import useQueryContacts from '../../../../hooks/chat/useQueryContacts'
 import useOnClickOutside from '../../../../hooks/shared/useClickOutside'
 
-const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
+const Search = () => {
   const { isLoading, data, isError } = useUser()
   const ref = useRef()
   const [isModalOpen, setModalOpen] = useState(false)

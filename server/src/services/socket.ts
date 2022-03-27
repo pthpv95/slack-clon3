@@ -9,9 +9,10 @@ import {
   CreateMessageInput,
   CreateMessageInThreadInput,
   readMessage,
+  removeMessageReaction,
   updateMessageReaction,
 } from '../services/message'
-import { IMessageReaction } from '../types/message/IReactMessage';
+import { IMessageReaction, IRemoveMessageReaction } from '../types/message/MessageReaction';
 import { IReadMessage } from '../types/message/IReadMessage'
 
 const app = require('express')()
@@ -64,7 +65,7 @@ io.on('connection', (socket: Socket) => {
     cb && cb()
   })
 
-  socket.on(SocketEvents.on_join_room, (data) => {
+  socket.on(SocketEvents.join_room, (data) => {
     console.log('on join room.', data)
     socket.join(data.roomId)
   })
@@ -89,12 +90,17 @@ io.on('connection', (socket: Socket) => {
     io.emit(SocketEvents.message_reacted, result)
   })
 
+  socket.on(SocketActions.remove_reaction, async (data: IRemoveMessageReaction, cb) => {
+    const result = await removeMessageReaction(data)
+    io.emit(SocketEvents.reaction_removed, result)
+  })
+
   // events
-  register(events.ON_ADD_USER_TO_CONVERSATION, (data) => {
-    // Handle notify user added to group
-    console.log(data);
-    socket.join(data.roomId)
-  });
+  // register(events.ON_ADD_USER_TO_CONVERSATION, (data) => {
+  //   // Handle notify user added to group
+  //   console.log(data);
+  //   socket.join(data.roomId)
+  // });
 
   //
   socket.on('disconnect', () => {

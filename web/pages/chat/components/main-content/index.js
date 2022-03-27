@@ -12,7 +12,8 @@ const MainContent = ({
   onOpenThread,
   onSendMessage,
   onFetchMore,
-  onReactMessage
+  onReactMessage,
+  onRemoveReaction
 }) => {
   const [textMessage, setTextMessage] = useState('')
   const [_messages, setMessages] = useState([])
@@ -22,30 +23,22 @@ const MainContent = ({
     if (newMessage) {
       setMessages(prev => [...prev, newMessage])
     }
-    
+
   }, [newMessage])
 
   useEffect(() => {
     setMessages(messages)
   }, [messages])
 
-  const handleMoreAction = (action) => {
-    if (action.type === 'reply') {
-      const message = _messages.find((m) => m.id === action.messageId)
-      onOpenThread({
-        title: message.text,
-        id: message.id,
-        createdBy: message.createdBy,
-        avatarUrl: message.avatarUrl,
-        replies: [],
-      })
-      return
-    }
-    
-    onReactMessage({
-      name: action.type,
-      symbol: action.text,
-      messageId: action.messageId
+
+  const onReplyMessage = (messageId) => {
+    const message = _messages.find((m) => m.id === messageId)
+    onOpenThread({
+      title: message.text,
+      id: message.id,
+      createdBy: message.createdBy,
+      avatarUrl: message.avatarUrl,
+      replies: [],
     })
   }
 
@@ -56,7 +49,9 @@ const MainContent = ({
         isLoading={isLoading}
         hasMore={hasMore}
         fetchMore={fetchMore}
-        handleMoreAction={handleMoreAction}
+        onReactMessage={onReactMessage}
+        onReplyMessage={onReplyMessage}
+        onRemoveReaction={onRemoveReaction}
         onFetchMore={onFetchMore}
       />
       <form

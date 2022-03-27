@@ -1,7 +1,7 @@
 import express from "express"
 import _ from "lodash"
 import {
-  createMessage, 
+  createMessage,
   getDirectMessage,
   getReplies
 } from "../services/message"
@@ -28,7 +28,6 @@ router.post("/direct", async (req, res) => {
     const conversationId = req.body.conversationId
 
     const data = await getDirectMessage(
-      req.user!.id,
       conversationId,
       cursor,
       limit
