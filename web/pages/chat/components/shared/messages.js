@@ -122,7 +122,6 @@ const MessageItem = ({
         setIsHover(false)
       }}
       onTouchStart={() => setIsHover(true)}
-      onTouchEnd={() => setIsHover(false)}
     >
       <Avatar src={message.avatarUrl} />
       <div className="message__content">
