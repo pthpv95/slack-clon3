@@ -1,5 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose"
 
+export interface IReaction extends Document {
+  type: string;
+  text: string;
+  by: string[]
+}
 export interface IMessage extends Document {
   text: string
   attachmentUrl: string
@@ -10,7 +15,27 @@ export interface IMessage extends Document {
   createdBy: string
   avatarUrl: string
   createdAt: Date
+  reactions: IReaction[]
 }
+
+const messageReactionSchema = new Schema({
+  type: {
+    type: Schema.Types.String
+  },
+  text: {
+    type: Schema.Types.String
+  },
+  by: [{
+    type: Schema.Types.String
+  }],
+}, {
+  toObject: {
+    transform: (doc, ret) => {
+      ret.id = doc._id;
+      delete ret._id;
+    }
+  }
+})
 
 const MessageSchema = new Schema(
   {
@@ -31,6 +56,7 @@ const MessageSchema = new Schema(
       type: Number,
       required: true,
     },
+    reactions: [messageReactionSchema],
     createdBy: {
       type: Schema.Types.String
     },

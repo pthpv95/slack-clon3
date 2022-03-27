@@ -1,8 +1,10 @@
 import _ from 'lodash'
+import { NotFoundError } from '../errors/not-found-error'
 import { Conversation } from '../models/conversation'
-import { IMessage, Message } from '../models/message'
+import { IMessage, IReaction, Message } from '../models/message'
 import { ReadReceipt } from '../models/readReceipt'
 import { User } from '../models/user'
+import { IReactMessage } from '../types/message/IReactMessage'
 import { IReadMessage } from '../types/message/IReadMessage'
 import { UserInfo } from './user'
 
@@ -28,6 +30,14 @@ class ConversationDTO {
   members: UserInfo[]
 }
 
+class ReactionDTO {
+  constructor(public type: string, public text: string, public by: string[]) {
+    this.text = text
+    this.type = type
+    this.by = by
+  }
+}
+
 class MessageDTO {
   constructor(
     id: string,
@@ -36,7 +46,8 @@ class MessageDTO {
     messageType: number,
     createdBy: string,
     timestamp: Date,
-    replies?: number
+    reactions: ReactionDTO[],
+    replies?: number,
   ) {
     this.id = id
     this.text = text
@@ -45,6 +56,7 @@ class MessageDTO {
     this.createdBy = createdBy
     this.timestamp = timestamp
     this.replies = replies
+    this.reactions = reactions
   }
 
   id: string
@@ -54,6 +66,7 @@ class MessageDTO {
   replies?: IMessage['replies']
   createdBy: IMessage['createdBy']
   timestamp: IMessage['createdAt']
+  reactions: ReactionDTO[]
 }
 
 export interface CreateMessageInput {
@@ -74,7 +87,7 @@ const getDirectMessage = async (
   cursor?: number,
   limit: number = 3
 ) => {
-  var conversation = await Conversation.findById(conversationId)
+  let conversation = await Conversation.findById(conversationId)
   if (conversation) {
     let predicate: any = {
       conversationId,
@@ -124,6 +137,7 @@ const getDirectMessage = async (
             message.type,
             message.createdBy,
             message.createdAt,
+            message.reactions.map(reaction => reaction.toObject()) || [],
             replies
           )
         })
@@ -158,7 +172,8 @@ const getReplies = async (threadId: string) => {
       message.attachmentUrl,
       message.type,
       message.createdBy,
-      message.createdAt
+      message.createdAt,
+      []
     )
   })
 }
@@ -185,12 +200,12 @@ const createMessage = async (input: CreateMessageInput): Promise<any> => {
   return message
 }
 
-var createConversation = async (
+let createConversation = async (
   title: string,
   createdBy: string,
   memberIds: string[]
 ) => {
-  var conversation = new Conversation({
+  let conversation = new Conversation({
     title,
     createdBy,
     memberIds,
@@ -200,10 +215,54 @@ var createConversation = async (
   return conversation
 }
 
+let updateMessageReaction = async (input: IReactMessage) => {
+  let message = await Message.findOne({ _id: input.messageId })
+  if (!message) {
+    throw new NotFoundError('Message not found')
+  }
+
+
+  if (!message.reactions?.length) {
+    await message.updateOne({
+      reactions: [{
+        by: [input.by],
+        type: input.type,
+        text: input.text
+      }]
+    });
+  } else {
+    let isReactingOnExistingOne = message.reactions.some(reaction => reaction.type === input.type);
+    if (isReactingOnExistingOne) {
+      let existingReaction = message.reactions.find(reaction => reaction.type === input.type);
+      if (existingReaction) {
+        existingReaction.by = [...existingReaction.by, input.by]
+        await message.save();
+      }
+    } else {
+      await message.updateOne({
+        reactions: [...message.reactions, {
+          by: [input.by],
+          type: input.type,
+          text: input.text
+        }]
+      })
+    }
+  }
+
+  let updatedMessage = await Message.findOne({ _id: input.messageId }, { reactions: 1 })
+
+  return {
+    ...input,
+    reactions: updatedMessage?.reactions.map(reaction => reaction.toObject()),
+    conversationId: message.conversationId
+  }
+}
+
 export {
   getDirectMessage,
   createMessage,
   createConversation,
   readMessage,
   getReplies,
+  updateMessageReaction
 }

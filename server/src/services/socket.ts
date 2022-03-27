@@ -9,7 +9,9 @@ import {
   CreateMessageInput,
   CreateMessageInThreadInput,
   readMessage,
+  updateMessageReaction,
 } from '../services/message'
+import { IReactMessage } from '../types/message/IReactMessage';
 import { IReadMessage } from '../types/message/IReadMessage'
 
 const app = require('express')()
@@ -33,7 +35,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket: Socket) => {
   // socket.emit(SocketEvents.new_message, 'welcome ...');
-  socket.on(SocketActions.on_send_message, async (data, cb) => {
+  socket.on(SocketActions.send_message, async (data, cb) => {
     const userId = data.userId
     const input: CreateMessageInput = {
       text: data.text,
@@ -47,7 +49,7 @@ io.on('connection', (socket: Socket) => {
     cb && cb()
   })
 
-  socket.on(SocketActions.on_send_message_in_thread, async (data, cb) => {
+  socket.on(SocketActions.send_message_in_thread, async (data, cb) => {
     const userId = data.userId
     const input: CreateMessageInThreadInput = {
       text: data.text,
@@ -80,6 +82,12 @@ io.on('connection', (socket: Socket) => {
     socket.emit(SocketEvents.stop_typing, data)
   })
 
+  socket.on(SocketActions.react_message, async (data: IReactMessage, cb) => {
+    const result = await updateMessageReaction(data)
+    console.log('emit message reaction');
+
+    io.emit(SocketEvents.message_reacted, result)
+  })
 
   // events
   register(events.ON_ADD_USER_TO_CONVERSATION, (data) => {
