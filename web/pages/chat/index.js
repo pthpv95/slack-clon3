@@ -138,9 +138,10 @@ export default function Chat() {
   }
 
   const handleReactMessage = (reaction) => {
+    // need to remap for now because we will integrate emoji picker in the future
     socket.emit(SocketActions.react_message, {
-      type: reaction.type,
-      text: reaction.text,
+      name: reaction.type,
+      symbol: reaction.text,
       messageId: reaction.id,
       by: user.id
     })

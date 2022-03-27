@@ -11,7 +11,7 @@ import {
   readMessage,
   updateMessageReaction,
 } from '../services/message'
-import { IReactMessage } from '../types/message/IReactMessage';
+import { IMessageReaction } from '../types/message/IReactMessage';
 import { IReadMessage } from '../types/message/IReadMessage'
 
 const app = require('express')()
@@ -82,7 +82,7 @@ io.on('connection', (socket: Socket) => {
     socket.emit(SocketEvents.stop_typing, data)
   })
 
-  socket.on(SocketActions.react_message, async (data: IReactMessage, cb) => {
+  socket.on(SocketActions.react_message, async (data: IMessageReaction, cb) => {
     const result = await updateMessageReaction(data)
     console.log('emit message reaction');
 

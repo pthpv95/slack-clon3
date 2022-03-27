@@ -4,7 +4,7 @@ import { Conversation } from '../models/conversation'
 import { IMessage, IReaction, Message } from '../models/message'
 import { ReadReceipt } from '../models/readReceipt'
 import { User } from '../models/user'
-import { IReactMessage } from '../types/message/IReactMessage'
+import { IMessageReaction } from '../types/message/IReactMessage'
 import { IReadMessage } from '../types/message/IReadMessage'
 import { UserInfo } from './user'
 
@@ -31,9 +31,9 @@ class ConversationDTO {
 }
 
 class ReactionDTO {
-  constructor(public type: string, public text: string, public by: string[]) {
-    this.text = text
-    this.type = type
+  constructor(public name: string, public symbol: string, public by: string[]) {
+    this.symbol = symbol
+    this.name = name
     this.by = by
   }
 }
@@ -215,7 +215,7 @@ let createConversation = async (
   return conversation
 }
 
-let updateMessageReaction = async (input: IReactMessage) => {
+let updateMessageReaction = async (input: IMessageReaction) => {
   let message = await Message.findOne({ _id: input.messageId })
   if (!message) {
     throw new NotFoundError('Message not found')
@@ -226,14 +226,14 @@ let updateMessageReaction = async (input: IReactMessage) => {
     await message.updateOne({
       reactions: [{
         by: [input.by],
-        type: input.type,
-        text: input.text
+        name: input.name,
+        symbol: input.symbol
       }]
     });
   } else {
-    let isReactingOnExistingOne = message.reactions.some(reaction => reaction.type === input.type);
+    let isReactingOnExistingOne = message.reactions.some(reaction => reaction.name === input.name);
     if (isReactingOnExistingOne) {
-      let existingReaction = message.reactions.find(reaction => reaction.type === input.type);
+      let existingReaction = message.reactions.find(reaction => reaction.name === input.name);
       if (existingReaction) {
         existingReaction.by = [...existingReaction.by, input.by]
         await message.save();
@@ -242,8 +242,8 @@ let updateMessageReaction = async (input: IReactMessage) => {
       await message.updateOne({
         reactions: [...message.reactions, {
           by: [input.by],
-          type: input.type,
-          text: input.text
+          name: input.name,
+          symbol: input.symbol
         }]
       })
     }

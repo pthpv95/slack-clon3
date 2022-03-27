@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose"
 
 export interface IReaction extends Document {
-  type: string;
-  text: string;
+  name: string;
+  symbol: string;
   by: string[]
 }
 export interface IMessage extends Document {
@@ -19,10 +19,10 @@ export interface IMessage extends Document {
 }
 
 const messageReactionSchema = new Schema({
-  type: {
+  name: {
     type: Schema.Types.String
   },
-  text: {
+  symbol: {
     type: Schema.Types.String
   },
   by: [{

@@ -72,7 +72,7 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
               message.reactions.map((reaction) => {
                 return (
                   <div key={`reaction_${reaction.id}`} onClick={() => handleClickReaction(reaction)}>
-                    {reaction.text} {reaction.by.length}
+                    {reaction.symbol} {reaction.by.length}
                   </div>
                 )
               })}

@@ -1,6 +1,6 @@
-export interface IReactMessage {
+export interface IMessageReaction {
   messageId: string;
-  type: string;
-  text: string;
+  name: string;
+  symbol: string;
   by: string;
 }
