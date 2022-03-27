@@ -31,7 +31,7 @@ const MainContent = ({
 
   const handleMoreAction = (action) => {
     if (action.type === 'reply') {
-      const message = _messages.find((m) => m.id === action.id)
+      const message = _messages.find((m) => m.id === action.messageId)
       onOpenThread({
         title: message.text,
         id: message.id,
@@ -42,7 +42,11 @@ const MainContent = ({
       return
     }
     
-    onReactMessage(action)
+    onReactMessage({
+      name: action.type,
+      symbol: action.text,
+      messageId: action.messageId
+    })
   }
 
   return (

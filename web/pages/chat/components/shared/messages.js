@@ -30,7 +30,7 @@ const MoreAction = ({ message, handleMoreAction }) => {
             key={action.type}
             className="message__more-actions--item"
             onClick={(e) => {
-              handleMoreAction({ ...action, id: message.id })
+              handleMoreAction({ ...action, messageId: message.id })
             }}
           >
             {action.text}
@@ -82,7 +82,7 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
           <div className="message__content--number-replies">
             <p
               onClick={(e) => {
-                handleMoreAction({ type: 'reply', id: message.id })
+                handleMoreAction({ type: 'reply', messageId: message.id })
               }}
             >
               {message.replies} {message.replies > 1 ? 'replies' : 'reply'}
