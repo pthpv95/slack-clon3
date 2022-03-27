@@ -90,7 +90,7 @@ const MessageItem = ({
   onReplyMessage,
   onRemoveReaction,
 }) => {
-  const [isHover, setIsHover] = useState(false)
+  const [moreActionVisible, setMoreActionVisible] = useState(false)
   const { data: user } = useUser()
 
   const handleRemoveReaction = (reaction) => {
@@ -116,12 +116,12 @@ const MessageItem = ({
     <div
       className="message"
       onMouseEnter={(e) => {
-        setIsHover(true)
+        setMoreActionVisible(true)
       }}
       onMouseLeave={() => {
-        setIsHover(false)
+        setMoreActionVisible(false)
       }}
-      onTouchStart={() => setIsHover(true)}
+      onTouchStart={() => setMoreActionVisible(true)}
     >
       <Avatar src={message.avatarUrl} />
       <div className="message__content">
@@ -163,7 +163,7 @@ const MessageItem = ({
           </div>
         )}
       </div>
-      {isHover && !isInThread && (
+      {moreActionVisible && !isInThread && (
         <MoreAction
           message={message}
           onReactMessage={handleReactMessage}
