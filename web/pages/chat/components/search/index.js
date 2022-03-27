@@ -26,7 +26,7 @@ const Search = ({ thread, onSubmit, onMoreAction, onCloseThread }) => {
   if (!data) {
     return null
   }
-  console.log('contacts', contacts);
+  
   const handleChange = (e) => {
     let searchTerm = e.target.value.toLowerCase();
     const searchContacts = contacts.filter(c => c.firstName.toLowerCase().includes(searchTerm) || c.lastName.toLowerCase().includes(searchTerm))

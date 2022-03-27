@@ -1,26 +1,22 @@
 import NextImage from 'next/image'
-import { useRouter } from 'next/router'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { SkeletonTheme } from 'react-loading-skeleton'
 import { io } from 'socket.io-client'
 import { SocketActions, SocketEvents } from '../../constants/events'
 import useUser from '../../hooks/auth/useUser'
 import useQueryUserConversations from '../../hooks/chat/useQueryUserConversations'
-import { delay, isMobile } from '../../utils'
+import { isMobile } from '../../utils'
 import { getDirectMessage, getReplies } from '../api/chat'
 import MainContent from './components/main-content'
 import Search from './components/search'
 import Sidebar from './components/sidebar'
 import Thread from './components/thread'
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 
+// @refresh reset
 const socket = io(process.env.NEXT_PUBLIC_BE_HOST)
-
 export default function Chat() {
-  // const router = useRouter()
-
   // use state
   const [thread, setThread] = useState(null)
-  // const [threadsData, setThreadsData] = useState([])
   const [sidebarWidth, setSidebarWidth] = useState(0)
   const [selectedDirectMessage, setSelectedDirectMessage] = useState(null)
   const [initialSidebarWidth, setInitialSizeBarWidth] = useState(0)
@@ -83,7 +79,7 @@ export default function Chat() {
       conversationId: data.id,
       cursor,
     })
-    const _messages = _mapMessage(response.messages, response.members)
+    const _messages = _mapMessages(response.messages, response.members)
     memberRef.current = response.members
     setMessages(_messages)
     setHasMore(!!response.nextCursor)
@@ -92,7 +88,7 @@ export default function Chat() {
     cursorRef.current = response.nextCursor
   }
 
-  const _mapMessage = (messages, members) => {
+  const _mapMessages = (messages, members) => {
     if (messages.length === 0) return []
     const _messages = messages.map((m) => {
       const user = members.find((member) => member.id == m.createdBy)
@@ -102,21 +98,19 @@ export default function Chat() {
         avatarUrl: user?.avatarUrl,
       }
     })
-
     return _messages
   }
 
   const handleOpenThread = async (thread) => {
-    setIsLoadingInThread(true)
     isMobileScreen && setSelectedScreen('thread')
     const replies = await getReplies(thread.id)
-    setIsLoadingInThread(false)
+    setNewReply(null);
     setThread({
       id: thread.id,
       title: thread.title,
       createdBy: thread.createdBy,
       avatarUrl: thread.avatarUrl,
-      replies: _mapMessage(replies, memberRef.current),
+      replies: _mapMessages(replies, memberRef.current),
     })
   }
 
@@ -133,13 +127,25 @@ export default function Chat() {
       cursor: nextCursor,
       limit: 5,
     })
-    const _messages = _mapMessage(response.messages, response.members)
+    const _messages = _mapMessages(response.messages, response.members)
     setIsFetchMore(true)
     setMessages([..._messages, ...messages])
     setHasMore(!!response.nextCursor)
     // setIsLoading(false)
     cursorRef.current = response.nextCursor
   }
+
+  const updateNumberRepliesOfMessage = useCallback((newReply) => {
+    setMessages(messages => {
+      const updateMessages = messages.map(m => {
+        if (m.id === newReply.threadId) {
+          m.replies++;
+        }
+        return m;
+      })
+      return updateMessages
+    })
+  }, [])
 
   useEffect(() => {
     if (sidebarRef.current) {
@@ -163,7 +169,7 @@ export default function Chat() {
 
     socket.on(SocketEvents.new_message, (data) => {
       if (data.conversationId) {
-        console.log(data)
+        console.log('new message', data)
         const userInfo = memberRef.current.find(
           (mem) => mem.id == data.createdBy
         )
@@ -176,11 +182,13 @@ export default function Chat() {
         if (!data.threadId) {
           setNewMessage(_message)
         } else {
-          setNewReply(_message)
+          // Update number of replies of message which contains replies in its thread
+          updateNumberRepliesOfMessage(_message)
+          setNewReply(_message);
         }
       }
     })
-  }, [isMobileScreen])
+  }, [isMobileScreen, updateNumberRepliesOfMessage])
 
   useEffect(() => {
     if (conversations && socketConnected) {
@@ -189,22 +197,6 @@ export default function Chat() {
       })
     }
   }, [conversations, socketConnected])
-
-  useEffect(() => {
-    if (newReply) {
-      return
-    }
-    setMessages(messages => {
-      const updateMessages = messages.map(m => {
-        if (m.id === newReply.threadId) {
-          m.replies++;
-        }
-        return m;
-      })
-      return updateMessages
-    })
-
-  }, [newReply])
 
   const renderScreen = () => {
     if (!selectedScreen) {

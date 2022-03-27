@@ -15,18 +15,16 @@ const Thread = ({
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
-    if (newReply) {
-      const newList = [...messages, newReply]
-      if (messages.some((n) => n.id === newReply.id)) {
-        return
-      }
-      setMessages(newList)
-    }
-  }, [messages, newReply])
-
-  useEffect(() => {
+    // init replies
     setMessages(thread.replies)
   }, [thread])
+
+  useEffect(() => {
+    // update message when new reply's coming
+    if (newReply) {
+      setMessages([...thread.replies, newReply])
+    }
+  }, [newReply, thread])
 
   return (
     <div className="thread">
@@ -43,9 +41,9 @@ const Thread = ({
           <p>{thread?.title}</p>
         </div>
       </div>
-      {thread?.replies.length > 0 && (
+      {messages.length > 0 && (
         <div className="thread__num-replies">
-          <span>{messages?.length} replies</span>
+          <span>{messages.length} replies</span>
         </div>
       )}
       <div className="thread">

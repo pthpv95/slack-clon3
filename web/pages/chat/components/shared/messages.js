@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { isMobile } from '../../../../utils'
 import Avatar from './avatar'
@@ -10,8 +10,12 @@ const MoreAction = ({ message, handleMoreAction }) => {
       text: '👍',
     },
     {
-      type: 'haha',
-      text: '😂',
+      type: 'complete',
+      text: '✅',
+    },
+    {
+      type: 'look',
+      text: '👀',
     },
     {
       type: 'reply',

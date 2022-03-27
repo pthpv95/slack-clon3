@@ -14,4 +14,4 @@ const Avatar = ({ src }) => {
   )
 }
 
-export default Avatar
+export default React.memo(Avatar)
