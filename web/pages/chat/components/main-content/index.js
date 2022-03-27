@@ -12,6 +12,7 @@ const MainContent = ({
   onOpenThread,
   onSendMessage,
   onFetchMore,
+  onReactMessage
 }) => {
   const [textMessage, setTextMessage] = useState('')
   const [_messages, setMessages] = useState([])
@@ -40,6 +41,8 @@ const MainContent = ({
       })
       return
     }
+    
+    onReactMessage(action)
   }
 
   return (

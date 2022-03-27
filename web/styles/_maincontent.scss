@@ -46,9 +46,6 @@
         height: 70vh;
       }
 
-      &::-webkit-scrollbar {
-        // display: none;
-      }
       .message {
         display: flex;
         margin-top: 1.7rem;
@@ -76,7 +73,7 @@
           }
 
           &--reactions {
-            margin-top: 0.5rem;
+            margin-top: 0.7rem;
             display: flex;
             & > div {
               cursor: pointer;
@@ -87,11 +84,15 @@
               border-radius: 12px;
               background-color: #1264a3;
               border-color: #1264a3;
+              display: flex;
+              justify-content: center;
+              min-width: 40px;
             }
           }
 
           &--number-replies {
             p {
+              padding-top: .5rem;
               color: $color-link;
               font-size: 13px;
               &:hover {

@@ -43,6 +43,10 @@ const MoreAction = ({ message, handleMoreAction }) => {
 
 const MessageItem = ({ message, isInThread, handleMoreAction }) => {
   const [isHover, setIsHover] = useState(false)
+
+  const handleClickReaction = (reaction) => {
+    console.log('reaction', reaction);
+  }
   return (
     <div
       className="message"
@@ -67,8 +71,8 @@ const MessageItem = ({ message, isInThread, handleMoreAction }) => {
             {message.reactions &&
               message.reactions.map((reaction) => {
                 return (
-                  <div key={`reaction_${reaction.key}`}>
-                    {reaction.text} {reaction.times}
+                  <div key={`reaction_${reaction.id}`} onClick={() => handleClickReaction(reaction)}>
+                    {reaction.text} {reaction.by.length}
                   </div>
                 )
               })}

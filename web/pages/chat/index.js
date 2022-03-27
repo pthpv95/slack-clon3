@@ -38,6 +38,7 @@ export default function Chat() {
   const sidebarRef = useRef()
   const memberRef = useRef()
   const cursorRef = useRef()
+  const currentConversationIdRef = useRef()
 
   const isMobileScreen = isMobile()
 
@@ -86,6 +87,7 @@ export default function Chat() {
     setIsFetchMore(false)
     setIsLoading(false)
     cursorRef.current = response.nextCursor
+    currentConversationIdRef.current = data.id;
   }
 
   const _mapMessages = (messages, members) => {
@@ -135,6 +137,15 @@ export default function Chat() {
     cursorRef.current = response.nextCursor
   }
 
+  const handleReactMessage = (reaction) => {
+    socket.emit(SocketActions.react_message, {
+      type: reaction.type,
+      text: reaction.text,
+      messageId: reaction.id,
+      by: user.id
+    })
+  }
+
   const updateNumberRepliesOfMessage = useCallback((newReply) => {
     setMessages(messages => {
       const updateMessages = messages.map(m => {
@@ -147,16 +158,23 @@ export default function Chat() {
     })
   }, [])
 
+  const updateMessageReactions = useCallback((newReaction) => {
+    setMessages(messages => {
+      return messages.map(message => {
+        if (message.id === newReaction.messageId) {
+          message.reactions = newReaction.reactions
+        }
+        return message;
+      })
+    })
+  }, [])
+
   useEffect(() => {
     if (sidebarRef.current) {
       setInitialSizeBarWidth(sidebarRef.current.clientWidth)
     }
 
     setSelectedScreen(isMobileScreen ? 'sidebar' : null)
-    // TODO: Handle when window resizes
-    // window.addEventListener('resize', (e) => {
-    // setSidebarWidth('auto')
-    // });
     socket.on('connect', () => {
       console.log('connected to server')
       setSocketConnected(true)
@@ -188,7 +206,17 @@ export default function Chat() {
         }
       }
     })
-  }, [isMobileScreen, updateNumberRepliesOfMessage])
+
+    socket.on(SocketEvents.message_reacted, (newReaction) => {
+      console.log('message reaction', newReaction);
+
+      // Do nothing when new reaction comes from other conversation
+      if (newReaction.conversationId !== currentConversationIdRef.current) {
+        return;
+      }
+      updateMessageReactions(newReaction);
+    })
+  }, [isMobileScreen, updateMessageReactions, updateNumberRepliesOfMessage])
 
   useEffect(() => {
     if (conversations && socketConnected) {
@@ -251,6 +279,7 @@ export default function Chat() {
                 onSendMessage={handleSendMessage}
                 onOpenThread={handleOpenThread}
                 onFetchMore={handleFetchMore}
+                onReactMessage={handleReactMessage}
               />
             )}
           </div>

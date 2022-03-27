@@ -4,6 +4,7 @@ export const SocketEvents = {
   message_seen: "message_seen",
   typing: "typing",
   stop_typing: "stop_typing",
+  message_reacted: 'message_reacted'
 }
 
 export const SocketActions = {
@@ -12,5 +13,6 @@ export const SocketActions = {
   read_message: "read_message",
   typing_message: "typing_message",
   stop_typing_message: "stop_styping_message",
-  join_room: "join_room"
+  join_room: "join_room",
+  react_message: "react_message",
 }
