@@ -101,6 +101,11 @@ const MessageItem = ({
     const existingReaction = message.reactions.find(
       (r) => r.name === reaction.name
     )
+
+    if (existingReaction?.by.some((item) => user.id !== item)) {
+      console.log('cant do reaction on the one belong to other')
+      return
+    }
     if (existingReaction) {
       onRemoveReaction({ ...existingReaction, messageId: message.id })
     } else {
@@ -131,7 +136,7 @@ const MessageItem = ({
             <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
           )}
         </p>
-        <p className='message__content--message'>{message.text}</p>
+        <p className="message__content--message">{message.text}</p>
         {!isInThread && (
           <div className="message__content--reactions">
             {message.reactions &&
@@ -155,9 +160,7 @@ const MessageItem = ({
         )}
         {message.replies > 0 && (
           <div className="message__content--number-replies">
-            <p
-              onClick={handleReplyMessage}
-            >
+            <p onClick={handleReplyMessage}>
               {message.replies} {message.replies > 1 ? 'replies' : 'reply'}
             </p>
           </div>

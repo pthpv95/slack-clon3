@@ -87,12 +87,12 @@ export default function Chat() {
     setIsFetchMore(false)
     setIsLoading(false)
     cursorRef.current = response.nextCursor
-    currentConversationIdRef.current = data.id;
+    currentConversationIdRef.current = data.id
   }
 
   const _mapMessages = (messages, members) => {
     if (messages.length === 0) return []
-    const _messages = messages.map((m) => {
+    return messages.map((m) => {
       const user = members.find((member) => member.id == m.createdBy)
       return {
         ...m,
@@ -100,13 +100,12 @@ export default function Chat() {
         avatarUrl: user?.avatarUrl,
       }
     })
-    return _messages
   }
 
   const handleOpenThread = async (thread) => {
     isMobileScreen && setSelectedScreen('thread')
     const replies = await getReplies(thread.id)
-    setNewReply(null);
+    setNewReply(null)
     setThread({
       id: thread.id,
       title: thread.title,
@@ -142,7 +141,7 @@ export default function Chat() {
       name: reaction.name,
       symbol: reaction.symbol,
       messageId: reaction.messageId,
-      by: user.id
+      by: user.id,
     })
   }
 
@@ -156,35 +155,34 @@ export default function Chat() {
   }
 
   const updateNumberRepliesOfMessage = useCallback((newReply) => {
-    setMessages(messages => {
-      const updateMessages = messages.map(m => {
+    setMessages((messages) => {
+      return messages.map((m) => {
         if (m.id === newReply.threadId) {
-          m.replies++;
+          m.replies++
         }
-        return m;
+        return m
       })
-      return updateMessages
     })
   }, [])
 
   const updateMessageReactions = useCallback((newReaction) => {
-    setMessages(messages => {
-      return messages.map(message => {
+    setMessages((messages) => {
+      return messages.map((message) => {
         if (message.id === newReaction.messageId) {
           message.reactions = newReaction.reactions
         }
-        return message;
+        return message
       })
     })
   }, [])
 
-  const updateMessageReactionRemoved = useCallback(data => {
-    setMessages(messages => {
-      return messages.map(message => {
+  const updateMessageReactionRemoved = useCallback((data) => {
+    setMessages((messages) => {
+      return messages.map((message) => {
         if (message.id === data.messageId) {
           message.reactions = data.reactions
         }
-        return message;
+        return message
       })
     })
   }, [])
@@ -222,28 +220,33 @@ export default function Chat() {
         } else {
           // Update number of replies of message which contains replies in its thread
           updateNumberRepliesOfMessage(_message)
-          setNewReply(_message);
+          setNewReply(_message)
         }
       }
     })
 
     socket.on(SocketEvents.message_reacted, (newReaction) => {
-      console.log('message reaction', newReaction);
+      console.log('message reaction', newReaction)
       // Do nothing when new reaction comes from other conversation
       if (newReaction.conversationId !== currentConversationIdRef.current) {
-        return;
+        return
       }
-      updateMessageReactions(newReaction);
+      updateMessageReactions(newReaction)
     })
 
     socket.on(SocketEvents.reaction_removed, (data) => {
-      console.log('reaction removed', data);
+      console.log('reaction removed', data)
       if (data.conversationId !== currentConversationIdRef.current) {
-        return;
+        return
       }
-      updateMessageReactionRemoved(data);
+      updateMessageReactionRemoved(data)
     })
-  }, [isMobileScreen, updateMessageReactionRemoved, updateMessageReactions, updateNumberRepliesOfMessage])
+  }, [
+    isMobileScreen,
+    updateMessageReactionRemoved,
+    updateMessageReactions,
+    updateNumberRepliesOfMessage,
+  ])
 
   useEffect(() => {
     if (conversations && socketConnected) {
@@ -287,7 +290,7 @@ export default function Chat() {
             draggable
             className="resize"
             onDrag={handleDrag}
-            onDragEnd={(e) => { }}
+            onDragEnd={(e) => {}}
             onDragStart={(e) => {
               const img = new Image()
               img.src =
